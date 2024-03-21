@@ -3,27 +3,21 @@
 from PyQt5.QtCore import QTimer, pyqtSignal, QRunnable, QThreadPool, QObject
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox
 from qt_widgets import LabeledDoubleSpinBox, LabeledSliderDoubleSpinBox, NDarray_to_QPixmap
-from camera_tools import Camera, Frame
+from camera_tools import Camera, Frame, Frame_RingBuffer
 import numpy as np
+from abc import ABC, abstractmethod
 
 # TODO show camera FPS, display FPS, and camera statistics in status bar
 # TODO subclass CameraWidget for camera with specifi controls
 
-class FrameSignal(QObject):
-    image_ready = pyqtSignal(np.ndarray)
-    
-# TODO do the same using a MP_Queue/RingBuffer/ZMQ instead
-class FrameSender(QRunnable):
+class FrameSender(ABC):
 
-    def __init__(self, camera: Camera, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
+    def __init__(self, camera: Camera,  *args, **kwargs):
 
         self.camera = camera
-        self.signal = FrameSignal()
         self.acquisition_started = False
         self.keepgoing = True
-
+    
     def start_acquisition(self):
         self.acquisition_started = True
 
@@ -33,6 +27,35 @@ class FrameSender(QRunnable):
     def terminate(self):
         self.keepgoing = False
 
+    @abstractmethod
+    def run(self):
+        ...
+    
+# TODO do the same using a MP_Queue/RingBuffer/ZMQ instead
+class FrameSenderRingBuffer(FrameSender, QRunnable):
+
+    def __init__(self, camera: Camera, ring_buffer: Frame_RingBuffer, *args, **kwargs):
+
+        super().__init__(camera, *args, **kwargs)
+        self.ring_buffer = ring_buffer
+
+    def run(self):
+        while self.keepgoing:
+            if self.acquisition_started:
+                frame = self.camera.get_frame()
+                if frame.image is not None:
+                    self.ring_buffer.put(frame)
+
+class FrameSignal(QObject):
+    image_ready = pyqtSignal(np.ndarray)
+
+class FrameSenderSignal(FrameSender, QRunnable):
+
+    def __init__(self, camera: Camera, *args, **kwargs):
+
+        super().__init__(camera, *args, **kwargs)
+        self.signal = FrameSignal()
+
     def run(self):
         while self.keepgoing:
             if self.acquisition_started:
@@ -40,18 +63,19 @@ class FrameSender(QRunnable):
                 if frame.image is not None:
                     self.signal.image_ready.emit(frame.image)
 
+
 class CameraControl(QWidget):
 
     image_ready = pyqtSignal(np.ndarray)
 
-    def __init__(self, camera: Camera, *args, **kwargs):
+    def __init__(self, camera: Camera, frame_sender: FrameSender, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.camera = camera
+        self.sender = frame_sender
 
-        self.sender = FrameSender(camera)
-        # this is breaking encapsulation a bit 
+        # this is breaking encapsulation a bit?
         self.sender.signal.image_ready.connect(self.image_ready)
 
         self.thread_pool = QThreadPool()
