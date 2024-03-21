@@ -278,6 +278,7 @@ class CameraPreview(QWidget):
         self.thread_pool = QThreadPool()
         self.camera_control = camera_control
         self.camera_control.buffer_updated.connect(self.reload_buffer)
+        self.reload_buffer()
 
         layout = QHBoxLayout(self)
         layout.addWidget(self.image_label)
