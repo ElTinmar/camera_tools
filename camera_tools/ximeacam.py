@@ -28,7 +28,16 @@ class XimeaCamera(Camera):
             self.xi_cam.set_acq_timing_mode('XI_ACQ_TIMING_MODE_FRAME_RATE')
         else:
             self.xi_cam.set_acq_timing_mode('XI_ACQ_TIMING_MODE_FRAME_RATE_LIMIT')        
-        
+    
+    def turn_off_leds(self) -> None:
+        for led in xiapi.XI_LED_SELECTOR:
+            try:
+                self.xi_cam.set_led_selector(led)
+                self.xi_cam.set_led_mode('XI_LED_OFF')
+            except xiapi.Xi_error:
+                print(f'{led} does not exist')
+                pass
+
     def start_acquisition(self) -> None:
         self.xi_cam.start_acquisition()
     
@@ -88,9 +97,10 @@ class XimeaCamera(Camera):
         try:
             self.xi_cam.set_width(width)
             self.xi_cam.set_height(height)
-            self.xi_cam.set_offsetX(left)
+            self.xi_cam.set_offsetX(height)
             self.xi_cam.set_offsetY(bottom)
         except xiapi.Xi_error:
+            print(f'setting ROI ({width},{height},{height},{bottom}) not possible')
             pass
 
     def get_ROI(self) -> Optional[Tuple[int,int,int,int]]:
@@ -100,6 +110,7 @@ class XimeaCamera(Camera):
         try:
             self.xi_cam.set_offsetX(offsetX)
         except xiapi.Xi_error:
+            print(f'setting offset {offsetX} not possible')
             pass
 
     def get_offsetX(self) -> Optional[int]:
@@ -117,6 +128,7 @@ class XimeaCamera(Camera):
         try:
             self.xi_cam.set_offsetY(offsetY)
         except xiapi.Xi_error:
+            print(f'setting offset {offsetY} not possible')
             pass
 
     def get_offsetY(self) -> Optional[int]:
@@ -134,6 +146,7 @@ class XimeaCamera(Camera):
         try:
             self.xi_cam.set_width(width)
         except xiapi.Xi_error:
+            print(f'setting width {width} not possible')
             pass
 
     def get_width(self) -> Optional[int]:
@@ -151,7 +164,8 @@ class XimeaCamera(Camera):
         try:
             self.xi_cam.set_height(height)
         except xiapi.Xi_error:
-                pass
+            print(f'setting height {height} not possible')
+            pass
         
     def get_height(self) -> Optional[int]:
         return self.xi_cam.get_height()    
@@ -176,6 +190,17 @@ class XimeaCamera(Camera):
             self.first_num = im_num
             self.first_timestamp = timestamp
         return BaseFrame(im_num-self.first_num, timestamp-self.first_timestamp, pixeldata)
+
+    def get_bit_depth(self) -> Optional[int]:
+        return xiapi.XI_BIT_DEPTH[self.xi_cam.get_image_data_bit_depth()].value
+
+    def set_bit_depth(self, depth: int) -> None:
+        mapping = {v.value: k for k, v in xiapi.XI_BIT_DEPTH.items()}
+        try:
+            self.xi_cam.set_image_data_bit_depth(mapping[depth])
+        except xiapi.Xi_error:
+            print(f'setting bit depth {depth} not possible')
+            pass
 
     def __del__(self):
         if self.xi_cam is not None:

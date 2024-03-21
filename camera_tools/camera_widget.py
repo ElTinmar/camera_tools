@@ -3,21 +3,26 @@
 from PyQt5.QtCore import QTimer, pyqtSignal, QRunnable, QThreadPool, QObject
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox
 from qt_widgets import LabeledDoubleSpinBox, LabeledSliderDoubleSpinBox, NDarray_to_QPixmap
-from camera_tools import Camera, Frame, Frame_RingBuffer
+from camera_tools import Camera, FrameRingBuffer, Frame
 import numpy as np
-from abc import ABC, abstractmethod
+from typing import Callable
+
 
 # TODO show camera FPS, display FPS, and camera statistics in status bar
 # TODO subclass CameraWidget for camera with specifi controls
 
-class FrameSender(ABC):
 
-    def __init__(self, camera: Camera,  *args, **kwargs):
+class FrameSender(QRunnable):
+
+    def __init__(self, camera: Camera, ring_buffer: FrameRingBuffer, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
 
         self.camera = camera
+        self.ring_buffer = ring_buffer
         self.acquisition_started = False
         self.keepgoing = True
-    
+
     def start_acquisition(self):
         self.acquisition_started = True
 
@@ -26,18 +31,7 @@ class FrameSender(ABC):
 
     def terminate(self):
         self.keepgoing = False
-
-    @abstractmethod
-    def run(self):
-        ...
-    
-# TODO do the same using a MP_Queue/RingBuffer/ZMQ instead
-class FrameSenderRingBuffer(FrameSender, QRunnable):
-
-    def __init__(self, camera: Camera, ring_buffer: Frame_RingBuffer, *args, **kwargs):
-
-        super().__init__(camera, *args, **kwargs)
-        self.ring_buffer = ring_buffer
+        self.stop_acquisition()
 
     def run(self):
         while self.keepgoing:
@@ -46,41 +40,36 @@ class FrameSenderRingBuffer(FrameSender, QRunnable):
                 if frame.image is not None:
                     self.ring_buffer.put(frame)
 
-class FrameSignal(QObject):
-    image_ready = pyqtSignal(np.ndarray)
+class FrameReceiver(QRunnable):
 
-class FrameSenderSignal(FrameSender, QRunnable):
+    def __init__(self, ring_buffer: FrameRingBuffer, callback: Callable[[Frame], None], *args, **kwargs):
 
-    def __init__(self, camera: Camera, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        super().__init__(camera, *args, **kwargs)
-        self.signal = FrameSignal()
+        self.ring_buffer = ring_buffer
+        self.keepgoing = True
+        self.callback = callback
+
+    def terminate(self):
+        self.keepgoing = False
 
     def run(self):
-        while self.keepgoing:
-            if self.acquisition_started:
-                frame = self.camera.get_frame()
-                if frame.image is not None:
-                    self.signal.image_ready.emit(frame.image)
-
+        while self.keepgoing:            
+            frame = self.ring_buffer.get()
+            if frame.image is not None:
+                self.callback(frame)
 
 class CameraControl(QWidget):
 
-    image_ready = pyqtSignal(np.ndarray)
+    buffer_updated = pyqtSignal()
 
-    def __init__(self, camera: Camera, frame_sender: FrameSender, *args, **kwargs):
+    def __init__(self, camera: Camera, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.camera = camera
-        self.sender = frame_sender
-
-        # this is breaking encapsulation a bit?
-        self.sender.signal.image_ready.connect(self.image_ready)
-
+        self._sender = None
         self.thread_pool = QThreadPool()
-        self.thread_pool.start(self.sender)
-
         self.acquisition_started = False
         self.controls = [
             'framerate', 
@@ -92,11 +81,47 @@ class CameraControl(QWidget):
             'width'
         ]
         
+        self.update_buffer()
         self.declare_components()
         self.layout_components()
 
     # UI ---------------------------------------------------------
+
+    @property
+    def sender(self) -> FrameSender:
+        return self._sender
     
+    @sender.setter
+    def sender(self, value: FrameSender) -> None:
+        if self._sender:
+            self._sender.terminate()
+        self._sender = value 
+        self.thread_pool.start(self._sender)
+    
+    def update_buffer(self):
+        
+        BPP_TO_DTYPE = {
+            8: np.uint8,
+            16: np.uint16,
+            32: np.uint32
+        } 
+
+        bpp = self.camera.get_bit_depth()
+        height = self.camera.get_height()
+        width = self.camera.get_width()   
+
+        self.ring_buffer = FrameRingBuffer(
+            num_items = 100,
+            frame_shape = (height, width),
+            frame_dtype = BPP_TO_DTYPE[bpp]
+        )
+
+        self.sender = FrameSender(self.camera, self.ring_buffer)
+        self.buffer_updated.emit() 
+    
+    def get_buffer(self):
+        return self.ring_buffer
+        
     def create_spinbox(self, attr: str):
         '''
         Creates spinbox with correct label, value, range and increment
@@ -225,18 +250,22 @@ class CameraControl(QWidget):
     def set_offsetX(self):
         self.camera.set_offsetX(int(self.offsetX_spinbox.value()))
         self.update_values()
+        self.update_buffer()
     
     def set_offsetY(self):
         self.camera.set_offsetY(int(self.offsetY_spinbox.value()))
         self.update_values()
+        self.update_buffer()
 
     def set_width(self):
         self.camera.set_width(int(self.width_spinbox.value()))
         self.update_values()
+        self.update_buffer()
 
     def set_height(self):
         self.camera.set_height(int(self.height_spinbox.value()))
         self.update_values()
+        self.update_buffer()
 
 class CameraPreview(QWidget):
 
@@ -245,13 +274,29 @@ class CameraPreview(QWidget):
         super().__init__(*args, **kwargs)
 
         self.image_label = QLabel()
-
+        self._receiver = None
+        self.thread_pool = QThreadPool()
         self.camera_control = camera_control
-        self.camera_control.image_ready.connect(self.update_image)
+        self.camera_control.buffer_updated.connect(self.reload_buffer)
 
         layout = QHBoxLayout(self)
         layout.addWidget(self.image_label)
         layout.addWidget(self.camera_control)
+
+    @property
+    def receiver(self) -> FrameReceiver:
+        return self._receiver
+    
+    @receiver.setter
+    def sender(self, value: FrameReceiver) -> None:
+        if self._receiver:
+            self._receiver.terminate()
+        self._receiver = value 
+        self.thread_pool.start(self._receiver)
+
+    def reload_buffer(self):
+        buffer = self.camera_control.get_buffer()
+        self.receiver = FrameReceiver(buffer, self.update_image)
 
     def update_image(self, image: np.ndarray):
         self.image_label.setPixmap(NDarray_to_QPixmap(image))
