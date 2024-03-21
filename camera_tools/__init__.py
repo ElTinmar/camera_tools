@@ -1,6 +1,5 @@
 from .camera import *
 from .frame import *
-from .camera_widget import *
 from .randomcam import *
 from .zerocam import *
 from .frame import *
@@ -40,3 +39,4 @@ try:
 except ModuleNotFoundError:
     print('module ximea not found, ximea cameras not available')
 
+from .camera_widget import *
