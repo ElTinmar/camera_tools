@@ -121,7 +121,15 @@ class CameraControl(QWidget):
             frame_dtype = BPP_TO_DTYPE[bpp]
         )
 
+        try:
+            acquiring = self.sender.acquisition_started
+        except:
+            acquiring = None
+            
         self.sender = FrameSender(self.camera, self.ring_buffer)
+        if acquiring:
+            self.sender.start_acquisition()
+
         self.buffer_updated.emit() 
     
     def get_buffer(self):
@@ -225,8 +233,8 @@ class CameraControl(QWidget):
     # Callbacks --------------------------------------------------------- 
 
     def closeEvent(self, event):
-        self.sender.terminate()
         self.stop_acquisition()
+        self.sender.terminate()
 
     def start_acquisition(self):
         if not self.acquisition_started:
