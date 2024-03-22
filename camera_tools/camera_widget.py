@@ -145,7 +145,10 @@ class CameraControl(QWidget):
         WARNING This is compact but a bit terse and introduces dependencies
         in the code. 
         '''
-        setattr(self, attr + '_spinbox', LabeledSliderDoubleSpinBox(self))
+        if attr in ['framerate', 'exposure', 'gain']:
+            setattr(self, attr + '_spinbox', LabeledSliderDoubleSpinBox(self))
+        else:
+            setattr(self, attr + '_spinbox', LabeledDoubleSpinBox(self))
         spinbox = getattr(self, attr + '_spinbox')
         spinbox.setText(attr)
         
