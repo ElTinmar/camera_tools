@@ -18,6 +18,8 @@ class RandomCam(Camera):
         self.time_start: float = time.monotonic()
         self.shape = shape 
         self.dtype = np.dtype(dtype)
+        self.exposure = 1.0
+        self.fps = 10
 
     def get_frame(self) -> Frame:
 
@@ -28,15 +30,18 @@ class RandomCam(Camera):
             type_inf = np.iinfo(self.dtype)
             min_val = 0
             max_val = type_inf.max
-            img = np.random.randint(min_val, max_val, self.shape, dtype=self.dtype)
+            img = np.random.randint(min_val, int(self.exposure*max_val), self.shape, dtype=self.dtype)
         
         elif np.issubdtype(self.dtype, np.floating):
-            img = np.random.uniform(0.0, 1.0, self.shape).astype(self.dtype)
+            img = np.random.uniform(0.0, self.exposure, self.shape).astype(self.dtype)
         
         else:
             raise TypeError
         
         frame = BaseFrame(self.img_count, timestamp, img)
+
+        time.sleep(1/self.fps)
+
         return frame
 
     def start_acquisition(self) -> None:
@@ -47,28 +52,28 @@ class RandomCam(Camera):
         pass
 
     def set_exposure(self, exp_time: float) -> None:
-        pass
+        self.exposure = exp_time
 
     def get_exposure(self) -> Optional[float]:
-        pass
+        return self.exposure
 
     def get_exposure_range(self) -> Optional[Tuple[float,float]]:
-        pass
+        return (0.0, 1.0)
 
     def get_exposure_increment(self) -> Optional[float]:
-        pass
+        return 0.1
 
     def set_framerate(self, fps: float) -> None:
-        pass
+        self.fps = fps
 
     def get_framerate(self) -> Optional[float]:
-        pass
+        return self.fps
 
     def get_framerate_range(self) -> Optional[Tuple[float,float]]:
-        pass
+        return (1.0, 200.0)
 
     def get_framerate_increment(self) -> Optional[float]:
-        pass
+        return 1.0
 
     def set_gain(self, gain: float) -> None:
         pass
@@ -113,28 +118,28 @@ class RandomCam(Camera):
         pass
 
     def set_width(self, width: int) -> None:
-        pass
+        self.shape = (self.shape[0], width)
 
     def get_width(self) -> Optional[int]:
         return self.shape[1]
     
-    def get_width_range(self) -> Optional[int]:
-        pass
-
+    def get_width_range(self) -> Optional[Tuple[float,float]]:
+        return (1.0, 2048.0)
+    
     def get_width_increment(self) -> Optional[int]:
-        pass 
+        return 1.0 
     
     def set_height(self, height) -> None:
-        pass
+        self.shape = (height, self.shape[1])
     
     def get_height(self) -> Optional[int]:
         return self.shape[0]    
     
     def get_height_range(self) -> Optional[int]:
-        pass
+        return (1.0, 2048.0)
 
     def get_height_increment(self) -> Optional[int]:
-        pass 
+        return 1.0  
 
     def get_bit_depth(self) -> Optional[int]:
         return 8*self.dtype.itemsize
