@@ -19,7 +19,7 @@ class RandomCam(Camera):
         self.shape = shape 
         self.dtype = np.dtype(dtype)
         self.exposure = 1.0
-        self.fps = 10
+        self.fps = 30
 
     def get_frame(self) -> Frame:
 
@@ -58,7 +58,7 @@ class RandomCam(Camera):
         return self.exposure
 
     def get_exposure_range(self) -> Optional[Tuple[float,float]]:
-        return (0.0, 1.0)
+        return (0.1, 1.0)
 
     def get_exposure_increment(self) -> Optional[float]:
         return 0.1
