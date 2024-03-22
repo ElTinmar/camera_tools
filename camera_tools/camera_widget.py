@@ -124,8 +124,8 @@ class CameraControl(QWidget):
         try:
             acquiring = self.sender.acquisition_started
         except:
-            acquiring = None
-            
+            acquiring = False
+
         self.sender = FrameSender(self.camera, self.ring_buffer)
         if acquiring:
             self.sender.start_acquisition()
