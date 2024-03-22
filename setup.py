@@ -4,7 +4,7 @@ setup(
     name='camera_tools',
     python_requires='>=3.8',
     author='Martin Privat',
-    version='0.2.2',
+    version='0.2.3',
     packages=['camera_tools','camera_tools.tests'],
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
     description='camera tools',
@@ -14,6 +14,8 @@ setup(
         "PyQt5",
         "opencv-python",
         "harvesters",
-        "v4l2py"
+        "v4l2py",
+        "ipc_tools @ git+https://github.com/ElTinmar/ipc_tools.git@main",
+        "qt_widgets @ git+https://github.com/ElTinmar/qt_widgets.git@main"
     ]
 )
