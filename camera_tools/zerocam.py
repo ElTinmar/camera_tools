@@ -123,3 +123,9 @@ class ZeroCam(Camera):
 
     def get_height_increment(self) -> Optional[int]:
         pass 
+
+    def get_bit_depth(self) -> Optional[int]:
+        pass
+
+    def set_bit_depth(depth: int) -> None:
+        pass
