@@ -17,7 +17,7 @@ class RandomCam(Camera):
         self.img_count: int = 0
         self.time_start: float = time.monotonic()
         self.shape = shape 
-        self.dtype = dtype
+        self.dtype = np.dtype(dtype)
 
     def get_frame(self) -> Frame:
 
@@ -116,7 +116,7 @@ class RandomCam(Camera):
         pass
 
     def get_width(self) -> Optional[int]:
-        pass
+        return self.shape[1]
     
     def get_width_range(self) -> Optional[int]:
         pass
@@ -128,10 +128,16 @@ class RandomCam(Camera):
         pass
     
     def get_height(self) -> Optional[int]:
-        pass    
+        return self.shape[0]    
     
     def get_height_range(self) -> Optional[int]:
         pass
 
     def get_height_increment(self) -> Optional[int]:
         pass 
+
+    def get_bit_depth(self) -> Optional[int]:
+        return 8*self.dtype.itemsize
+
+    def set_bit_depth(depth: int) -> None:
+        pass

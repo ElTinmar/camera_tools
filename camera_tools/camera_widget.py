@@ -6,7 +6,7 @@ from qt_widgets import LabeledDoubleSpinBox, LabeledSliderDoubleSpinBox, NDarray
 from camera_tools import Camera, FrameRingBuffer, Frame
 import numpy as np
 from typing import Callable
-
+from queue import Empty
 
 # TODO show camera FPS, display FPS, and camera statistics in status bar
 # TODO subclass CameraWidget for camera with specifi controls
@@ -54,10 +54,15 @@ class FrameReceiver(QRunnable):
         self.keepgoing = False
 
     def run(self):
-        while self.keepgoing:            
-            frame = self.ring_buffer.get()
+        while self.keepgoing:
+
+            try:            
+                frame = self.ring_buffer.get()
+            except Empty:
+                continue
+
             if frame.image is not None:
-                self.callback(frame)
+                self.callback(frame.image)
 
 class CameraControl(QWidget):
 
@@ -289,7 +294,7 @@ class CameraPreview(QWidget):
         return self._receiver
     
     @receiver.setter
-    def sender(self, value: FrameReceiver) -> None:
+    def receiver(self, value: FrameReceiver) -> None:
         if self._receiver:
             self._receiver.terminate()
         self._receiver = value 
