@@ -104,6 +104,13 @@ class CameraControl(QWidget):
         self.thread_pool.start(self._sender)
     
     def update_buffer(self):
+
+        # stop sender
+        try:
+            acquiring = self.sender.acquisition_started
+            self.sender.terminate()
+        except:
+            acquiring = False
         
         BPP_TO_DTYPE = {
             8: np.uint8,
@@ -120,11 +127,6 @@ class CameraControl(QWidget):
             frame_shape = (height, width),
             frame_dtype = BPP_TO_DTYPE[bpp]
         )
-
-        try:
-            acquiring = self.sender.acquisition_started
-        except:
-            acquiring = False
 
         self.sender = FrameSender(self.camera, self.ring_buffer)
         if acquiring:
@@ -143,10 +145,7 @@ class CameraControl(QWidget):
         WARNING This is compact but a bit terse and introduces dependencies
         in the code. 
         '''
-        if attr in ['framerate', 'exposure', 'gain']:
-            setattr(self, attr + '_spinbox', LabeledSliderDoubleSpinBox(self))
-        else:
-            setattr(self, attr + '_spinbox', LabeledDoubleSpinBox(self))
+        setattr(self, attr + '_spinbox', LabeledSliderDoubleSpinBox(self))
         spinbox = getattr(self, attr + '_spinbox')
         spinbox.setText(attr)
         
