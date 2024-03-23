@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 from camera_tools import (
     CameraPreview, CameraControl
 )
@@ -28,6 +28,6 @@ if __name__ == '__main__':
     controls = CameraControl(cam)
     window = CameraPreview(controls)
     window.show()
-    
+
     sys.exit(app.exec())
 
