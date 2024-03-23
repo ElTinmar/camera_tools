@@ -264,24 +264,24 @@ class CameraControl(QWidget):
 
     def set_offsetX(self):
         self.camera.set_offsetX(int(self.offsetX_spinbox.value()))
-        self.update_values()
         self.update_buffer()
+        self.update_values()
     
     def set_offsetY(self):
         self.camera.set_offsetY(int(self.offsetY_spinbox.value()))
-        self.update_values()
         self.update_buffer()
+        self.update_values()
 
     def set_width(self):
         self.camera.set_width(int(self.width_spinbox.value()))
-        self.update_values()
         self.update_buffer()
+        self.update_values()
 
     def set_height(self):
         self.camera.set_height(int(self.height_spinbox.value()))
-        self.update_values()
         self.update_buffer()
-
+        self.update_values()
+        
 class CameraPreview(QWidget):
 
     def __init__(self, camera_control: CameraControl, *args, **kwargs) -> None:
@@ -317,6 +317,9 @@ class CameraPreview(QWidget):
     def update_image(self, image: np.ndarray):
         self.image_label.setPixmap(NDarray_to_QPixmap(image))
         
+    def closeEvent(self, event):
+        self.camera_control.close()
+        self.receiver.terminate()
 
 class CameraWidget(QWidget):
     # Old class with QTimer
