@@ -1,6 +1,6 @@
 # TODO record to file ?
 
-from PyQt5.QtCore import QTimer, pyqtSignal, QRunnable, QThreadPool, QObject
+from PyQt5.QtCore import QTimer, pyqtSignal, QRunnable, QThreadPool
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox
 from qt_widgets import LabeledDoubleSpinBox, LabeledSliderDoubleSpinBox, NDarray_to_QPixmap
 from camera_tools import Camera, FrameRingBuffer, Frame

@@ -132,7 +132,12 @@ class OpenCV_Webcam(Camera):
         pass 
 
     def get_bit_depth(self) -> Optional[int]:
-        pass
+        format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
+        mapping = {
+            cv2.CV_8U: 8,
+            cv2.CV_16U: 16
+        }
+        return mapping[format]
 
     def set_bit_depth(depth: int) -> None:
         pass
