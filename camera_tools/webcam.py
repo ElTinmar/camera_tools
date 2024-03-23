@@ -111,7 +111,7 @@ class OpenCV_Webcam(Camera):
         pass
 
     def get_width(self) -> Optional[int]:
-        pass
+        return int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
 
     def get_width_range(self) -> Optional[int]:
         pass
@@ -123,7 +123,7 @@ class OpenCV_Webcam(Camera):
         pass
     
     def get_height(self) -> Optional[int]:
-        pass    
+        return int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
     def get_height_range(self) -> Optional[int]:
         pass
