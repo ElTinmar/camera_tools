@@ -145,7 +145,14 @@ class OpenCV_Webcam(Camera):
         pass
 
     def get_num_channels(self) -> Optional[int]:
-        pass
+        format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
+        mapping = {
+            cv2.CV_8UC3: 3,
+            cv2.CV_8U: 1,
+            cv2.CV_16U: 1,
+            cv2.CV_16UC3: 3
+        }
+        return mapping[format]
 
     def set_num_channels(self, num_channels: int) -> None:
         pass

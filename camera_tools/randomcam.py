@@ -148,7 +148,10 @@ class RandomCam(Camera):
         pass
 
     def get_num_channels(self) -> Optional[int]:
-        pass
+        if len(self.shape) == 2:
+            return 1
+        elif len(self.shape) == 3:
+            return self.shape[2]
 
     def set_num_channels(self, num_channels: int) -> None:
         pass
