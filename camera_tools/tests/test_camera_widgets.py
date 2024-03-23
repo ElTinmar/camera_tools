@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     if USE_WEBCAM:
         from camera_tools import OpenCV_Webcam
-        cam = OpenCV_Webcam()
+        cam = OpenCV_Webcam(-1)
         
     controls = CameraControl(cam)
     window = CameraPreview(controls)

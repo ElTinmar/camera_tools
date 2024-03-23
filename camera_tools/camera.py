@@ -143,3 +143,11 @@ class Camera(ABC):
     @abstractmethod
     def set_bit_depth(depth: int) -> None:
         pass
+
+    @abstractmethod
+    def get_num_channels(self) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    def set_num_channels(self, num_channels: int) -> None:
+        pass

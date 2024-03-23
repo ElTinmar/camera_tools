@@ -120,11 +120,17 @@ class CameraControl(QWidget):
 
         bpp = self.camera.get_bit_depth()
         height = self.camera.get_height()
-        width = self.camera.get_width()   
+        width = self.camera.get_width()
+        num_channels = self.camera.get_num_channels()
+
+        if num_channels == 1:
+            frame_shape = (height, width)
+        else:
+            frame_shape = (height, width, num_channels)
 
         self.ring_buffer = FrameRingBuffer(
             num_items = 100,
-            frame_shape = (height, width),
+            frame_shape = frame_shape,
             frame_dtype = BPP_TO_DTYPE[bpp]
         )
 

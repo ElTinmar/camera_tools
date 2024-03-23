@@ -202,6 +202,12 @@ class XimeaCamera(Camera):
             print(f'setting bit depth {depth} not possible')
             pass
 
+    def get_num_channels(self) -> Optional[int]:
+        self.xi_cam.get_sensor_output_channel_count()
+        
+    def set_num_channels(self, num_channels: int) -> None:
+        pass
+
     def __del__(self):
         if self.xi_cam is not None:
             self.xi_cam.close_device()
