@@ -68,11 +68,12 @@ class CameraControl(QWidget):
 
     buffer_updated = pyqtSignal()
 
-    def __init__(self, camera: Camera, *args, **kwargs):
+    def __init__(self, camera: Camera, buffer_size: int = 5, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.camera = camera
+        self.buffer_size = buffer_size
         self._sender = None
         self.thread_pool = QThreadPool()
         self.acquisition_started = False
@@ -129,7 +130,7 @@ class CameraControl(QWidget):
             frame_shape = (height, width, num_channels)
 
         self.ring_buffer = FrameRingBuffer(
-            num_items = 100,
+            num_items = self.buffer_size,
             frame_shape = frame_shape,
             frame_dtype = BPP_TO_DTYPE[bpp]
         )
