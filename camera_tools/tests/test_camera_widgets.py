@@ -7,10 +7,11 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    app = QApplication(sys.argv)        
+    app = QApplication(sys.argv) 
+    image = np.zeros((512,512), dtype=np.uint8)    
     cam = RandomCam(shape=(512,512), dtype=np.uint8)
-    controls = CameraControl(cam)
-    window = CameraPreview(controls)
+    controls = CameraControl(cam, image)
+    window = CameraPreview(controls, image)
     window.show()
     sys.exit(app.exec())
 

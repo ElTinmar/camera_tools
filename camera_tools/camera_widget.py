@@ -5,21 +5,24 @@ from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButt
 from qt_widgets import LabeledDoubleSpinBox, LabeledSliderDoubleSpinBox, NDarray_to_QPixmap
 from camera_tools import Camera, Frame
 import numpy as np
+from numpy.typing import NDArray
 
 # TODO show camera FPS, display FPS, and camera statistics in status bar
 # TODO subclass CameraWidget for camera with specifi controls
 
 class FrameSignal(QObject):
-    image_ready = pyqtSignal(np.ndarray)
+    image_ready = pyqtSignal()
     
 # TODO do the same using a MP_Queue/RingBuffer/ZMQ instead
 class FrameSender(QRunnable):
 
-    def __init__(self, camera: Camera, *args, **kwargs):
+    def __init__(self, camera: Camera, image: NDArray, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.camera = camera
+        self.image = image
+        
         self.signal = FrameSignal()
         self.acquisition_started = False
         self.keepgoing = True
@@ -38,19 +41,21 @@ class FrameSender(QRunnable):
             if self.acquisition_started:
                 frame = self.camera.get_frame()
                 if frame.image is not None:
-                    self.signal.image_ready.emit(frame.image)
+                    self.image[:] = frame.image[:]
+                    self.signal.image_ready.emit()
 
 class CameraControl(QWidget):
 
-    image_ready = pyqtSignal(np.ndarray)
+    image_ready = pyqtSignal()
 
-    def __init__(self, camera: Camera, *args, **kwargs):
+    def __init__(self, camera: Camera, image: NDArray, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         self.camera = camera
+        self.image = image
 
-        self.sender = FrameSender(camera)
+        self.sender = FrameSender(camera, image)
         # this is breaking encapsulation a bit 
         self.sender.signal.image_ready.connect(self.image_ready)
 
@@ -216,11 +221,12 @@ class CameraControl(QWidget):
 
 class CameraPreview(QWidget):
 
-    def __init__(self, camera_control: CameraControl, *args, **kwargs) -> None:
+    def __init__(self, camera_control: CameraControl, image: NDArray, *args, **kwargs) -> None:
         
         super().__init__(*args, **kwargs)
 
         self.image_label = QLabel()
+        self.image = image
 
         self.camera_control = camera_control
         self.camera_control.image_ready.connect(self.update_image)
@@ -229,8 +235,8 @@ class CameraPreview(QWidget):
         layout.addWidget(self.image_label)
         layout.addWidget(self.camera_control)
 
-    def update_image(self, image: np.ndarray):
-        self.image_label.setPixmap(NDarray_to_QPixmap(image))
+    def update_image(self):
+        self.image_label.setPixmap(NDarray_to_QPixmap(self.image))
         
 
 class CameraWidget(QWidget):
