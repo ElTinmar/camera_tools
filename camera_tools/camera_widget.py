@@ -7,9 +7,6 @@ from camera_tools import Camera, Frame
 import numpy as np
 from numpy.typing import NDArray
 
-# TODO show camera FPS, display FPS, and camera statistics in status bar
-# TODO subclass CameraWidget for camera with specifi controls
-
 class FrameSender(QRunnable):
 
     def __init__(self, camera: Camera, image: NDArray, *args, **kwargs):
@@ -232,7 +229,7 @@ class CameraPreview(QWidget):
         
     def closeEvent(self, event):
         self.camera_control.close()
-        
+
 class CameraWidget(QWidget):
     # Old class with QTimer
 
