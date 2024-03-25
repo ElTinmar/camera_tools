@@ -1,11 +1,15 @@
 # TODO record to file ?
 
-from PyQt5.QtCore import QTimer, QRunnable, QThreadPool
+from PyQt5.QtCore import QTimer, QRunnable, QThreadPool, pyqtSignal, QObject
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox
 from qt_widgets import LabeledDoubleSpinBox, LabeledSliderDoubleSpinBox, NDarray_to_QPixmap
 from camera_tools import Camera, Frame
 import numpy as np
 from numpy.typing import NDArray
+
+class BufferSignal(QObject):
+
+    buffer_updated = pyqtSignal()
 
 class FrameSender(QRunnable):
 
@@ -15,8 +19,10 @@ class FrameSender(QRunnable):
 
         self.camera = camera
         self.image = image
+        self.buffer_signal = BufferSignal()
         self.acquisition_started = False
         self.keepgoing = True
+        self.shape = self.image.shape
 
     def start_acquisition(self):
         self.acquisition_started = True
@@ -27,14 +33,23 @@ class FrameSender(QRunnable):
     def terminate(self):
         self.keepgoing = False
 
+    def get_image(self):
+        return self.image
+
     def run(self):
         while self.keepgoing:
             if self.acquisition_started:
                 frame = self.camera.get_frame()
-                if frame.image is not None:
+                image = frame.image
+                if image is not None:
+                    if image.shape != self.shape:
+                        self.image = frame
+                        self.buffer_signal.buffer_updated.emit()
                     self.image[:] = frame.image[:]
 
 class CameraControl(QWidget):
+
+    buffer_updated = pyqtSignal()
 
     def __init__(self, camera: Camera, image: NDArray, *args, **kwargs):
 
@@ -44,6 +59,7 @@ class CameraControl(QWidget):
         self.image = image
 
         self.sender = FrameSender(camera, image)
+        self.sender.buffer_signal.buffer_updated.connect(self.update_buffer)
         self.thread_pool = QThreadPool()
         self.thread_pool.start(self.sender)
 
@@ -63,6 +79,9 @@ class CameraControl(QWidget):
 
     # UI ---------------------------------------------------------
     
+    def update_buffer(self):
+        self.image = self.sender.get_image()
+
     def create_spinbox(self, attr: str):
         '''
         Creates spinbox with correct label, value, range and increment
@@ -215,6 +234,8 @@ class CameraPreview(QWidget):
         self.image_label = QLabel()
         self.camera_control = camera_control
 
+        self.camera_control.sender.buffer_signal.buffer_updated.connect(self.update_buffer)
+
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_image)
         self.timer.setInterval(int(1000/display_fps))
@@ -223,6 +244,9 @@ class CameraPreview(QWidget):
         layout = QHBoxLayout(self)
         layout.addWidget(self.image_label)
         layout.addWidget(self.camera_control)
+
+    def update_buffer(self):
+        self.image = self.camera_control.sender.get_image()
 
     def update_image(self):
         self.image_label.setPixmap(NDarray_to_QPixmap(self.image))
