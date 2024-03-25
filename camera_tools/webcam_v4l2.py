@@ -129,3 +129,15 @@ class V4L2_Webcam(Camera):
 
     def get_height_increment(self) -> Optional[int]:
         pass 
+
+    def get_bit_depth(self) -> Optional[int]:
+        pass
+
+    def set_bit_depth(depth: int) -> None:
+        pass
+    
+    def get_num_channels(self) -> Optional[int]:
+        pass
+
+    def set_num_channels(self, num_channels: int) -> None:
+        pass

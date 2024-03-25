@@ -121,7 +121,7 @@ class Camera(ABC):
         pass
 
     @abstractmethod
-    def set_height(self, height) -> None:
+    def set_height(self, height: int) -> None:
         pass
 
     @abstractmethod
@@ -134,4 +134,20 @@ class Camera(ABC):
 
     @abstractmethod
     def get_height_increment(self) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    def get_bit_depth(self) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    def set_bit_depth(depth: int) -> None:
+        pass
+
+    @abstractmethod
+    def get_num_channels(self) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    def set_num_channels(self, num_channels: int) -> None:
         pass

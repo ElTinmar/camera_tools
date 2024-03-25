@@ -108,10 +108,10 @@ class OpenCV_Webcam(Camera):
         pass
 
     def set_width(self, width: int) -> None:
-        pass
+        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 
     def get_width(self) -> Optional[int]:
-        pass
+        return int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
 
     def get_width_range(self) -> Optional[int]:
         pass
@@ -120,13 +120,39 @@ class OpenCV_Webcam(Camera):
         pass 
 
     def set_height(self, height) -> None:
-        pass
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     
     def get_height(self) -> Optional[int]:
-        pass    
+        return int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
     def get_height_range(self) -> Optional[int]:
         pass
 
     def get_height_increment(self) -> Optional[int]:
         pass 
+
+    def get_bit_depth(self) -> Optional[int]:
+        format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
+        mapping = {
+            cv2.CV_8UC3: 8,
+            cv2.CV_8U: 8,
+            cv2.CV_16U: 16,
+            cv2.CV_16UC3: 16
+        }
+        return mapping[format]
+
+    def set_bit_depth(depth: int) -> None:
+        pass
+
+    def get_num_channels(self) -> Optional[int]:
+        format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
+        mapping = {
+            cv2.CV_8UC3: 3,
+            cv2.CV_8U: 1,
+            cv2.CV_16U: 1,
+            cv2.CV_16UC3: 3
+        }
+        return mapping[format]
+
+    def set_num_channels(self, num_channels: int) -> None:
+        pass
