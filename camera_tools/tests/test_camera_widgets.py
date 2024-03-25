@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 from camera_tools import (
     CameraPreview, RandomCam, CameraControl
 )
@@ -11,7 +11,7 @@ if __name__ == '__main__':
     image = np.zeros((512,512), dtype=np.uint8)    
     cam = RandomCam(shape=(512,512), dtype=np.uint8)
     controls = CameraControl(cam, image)
-    window = CameraPreview(controls, image)
+    window = CameraPreview(controls, image, fps=60)
     window.show()
     sys.exit(app.exec())
 
