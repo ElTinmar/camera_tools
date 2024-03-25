@@ -209,18 +209,18 @@ class CameraControl(QWidget):
 
 class CameraPreview(QWidget):
 
-    def __init__(self, camera_control: CameraControl, image: NDArray, fps=30, *args, **kwargs) -> None:
+    def __init__(self, camera_control: CameraControl, image: NDArray, display_fps: int = 30, *args, **kwargs) -> None:
         
         super().__init__(*args, **kwargs)
 
         self.image = image    
-        self.fps = fps
+        self.display_fps = display_fps
         self.image_label = QLabel()
         self.camera_control = camera_control
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_image)
-        self.timer.setInterval(int(1000/fps))
+        self.timer.setInterval(int(1000/display_fps))
         self.timer.start()
 
         layout = QHBoxLayout(self)
@@ -230,7 +230,9 @@ class CameraPreview(QWidget):
     def update_image(self):
         self.image_label.setPixmap(NDarray_to_QPixmap(self.image))
         
-
+    def closeEvent(self, event):
+        self.camera_control.close()
+        
 class CameraWidget(QWidget):
     # Old class with QTimer
 

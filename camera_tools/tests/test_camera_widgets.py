@@ -11,7 +11,7 @@ if __name__ == '__main__':
     image = np.zeros((512,512), dtype=np.uint8)    
     cam = RandomCam(shape=(512,512), dtype=np.uint8)
     controls = CameraControl(cam, image)
-    window = CameraPreview(controls, image, fps=60)
+    window = CameraPreview(controls, image, display_fps=60)
     window.show()
     sys.exit(app.exec())
 
