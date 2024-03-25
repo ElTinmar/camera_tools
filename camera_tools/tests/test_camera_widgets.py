@@ -23,13 +23,25 @@ if __name__ == '__main__':
         from camera_tools import XimeaCamera
         cam = XimeaCamera()
 
-    #height = cam.get_height()
-    #width = cam.width()
-    #channel = cam.get_num_channels()
-    #bpp = cam.get_depth()
-        
-    image = np.zeros((512,512), dtype=np.uint8)  
+    height = cam.get_height()
+    width = cam.get_width()
+    channel = cam.get_num_channels()
+    bpp = cam.get_bit_depth()
 
+    if channel == 2:
+        shp = (height, width)
+    elif channel == 3:
+        shp = (height, width, channel)
+    else:
+        raise RuntimeError('invalid num channels')
+    
+    map = {
+        8: np.uint8,
+        16: np.uint16
+    }
+        
+    image = np.zeros(shp, map[bpp])  
+    
     controls = CameraControl(cam, image)
     window = CameraPreview(controls, image, display_fps=60)
     window.show()
