@@ -1,6 +1,6 @@
 # TODO record to file ?
 
-from PyQt5.QtCore import QTimer, pyqtSignal, QRunnable, QThreadPool, QObject
+from PyQt5.QtCore import QTimer, QRunnable, QThreadPool
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox
 from qt_widgets import LabeledDoubleSpinBox, LabeledSliderDoubleSpinBox, NDarray_to_QPixmap
 from camera_tools import Camera, Frame
@@ -10,10 +10,6 @@ from numpy.typing import NDArray
 # TODO show camera FPS, display FPS, and camera statistics in status bar
 # TODO subclass CameraWidget for camera with specifi controls
 
-class FrameSignal(QObject):
-    image_ready = pyqtSignal()
-    
-# TODO do the same using a MP_Queue/RingBuffer/ZMQ instead
 class FrameSender(QRunnable):
 
     def __init__(self, camera: Camera, image: NDArray, *args, **kwargs):
@@ -22,8 +18,6 @@ class FrameSender(QRunnable):
 
         self.camera = camera
         self.image = image
-        
-        self.signal = FrameSignal()
         self.acquisition_started = False
         self.keepgoing = True
 
@@ -42,11 +36,8 @@ class FrameSender(QRunnable):
                 frame = self.camera.get_frame()
                 if frame.image is not None:
                     self.image[:] = frame.image[:]
-                    self.signal.image_ready.emit()
 
 class CameraControl(QWidget):
-
-    image_ready = pyqtSignal()
 
     def __init__(self, camera: Camera, image: NDArray, *args, **kwargs):
 
@@ -56,9 +47,6 @@ class CameraControl(QWidget):
         self.image = image
 
         self.sender = FrameSender(camera, image)
-        # this is breaking encapsulation a bit 
-        self.sender.signal.image_ready.connect(self.image_ready)
-
         self.thread_pool = QThreadPool()
         self.thread_pool.start(self.sender)
 
@@ -221,15 +209,19 @@ class CameraControl(QWidget):
 
 class CameraPreview(QWidget):
 
-    def __init__(self, camera_control: CameraControl, image: NDArray, *args, **kwargs) -> None:
+    def __init__(self, camera_control: CameraControl, image: NDArray, fps=30, *args, **kwargs) -> None:
         
         super().__init__(*args, **kwargs)
 
+        self.image = image    
+        self.fps = fps
         self.image_label = QLabel()
-        self.image = image
-
         self.camera_control = camera_control
-        self.camera_control.image_ready.connect(self.update_image)
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_image)
+        self.timer.setInterval(int(1000/fps))
+        self.timer.start()
 
         layout = QHBoxLayout(self)
         layout.addWidget(self.image_label)
