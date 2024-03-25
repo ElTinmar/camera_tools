@@ -5,8 +5,8 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    RANDOM = False
-    WEBCAM = True
+    RANDOM = True
+    WEBCAM = False
     XIMEA = False
 
     app = QApplication(sys.argv) 
@@ -25,15 +25,13 @@ if __name__ == '__main__':
 
     height = cam.get_height()
     width = cam.get_width()
-    channel = cam.get_num_channels()
+    num_channel = cam.get_num_channels()
     bpp = cam.get_bit_depth()
 
-    if channel == 2:
+    if num_channel == 1:
         shp = (height, width)
-    elif channel == 3:
-        shp = (height, width, channel)
     else:
-        raise RuntimeError('invalid num channels')
+        shp = (height, width, num_channel)
     
     map = {
         8: np.uint8,

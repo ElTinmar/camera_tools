@@ -43,7 +43,7 @@ class FrameSender(QRunnable):
                 image = frame.image
                 if image is not None:
                     if image.shape != self.shape:
-                        self.image = frame
+                        self.image = image
                         self.buffer_signal.buffer_updated.emit()
                     self.image[:] = frame.image[:]
 
