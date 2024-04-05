@@ -203,7 +203,7 @@ class XimeaCamera(Camera):
             pass
 
     def get_num_channels(self) -> Optional[int]:
-        return xiapi.XI_SENSOR_OUTPUT_CHANNEL_COUNT[self.xi_cam.get_sensor_output_channel_count()].value
+        return 1
         
     def set_num_channels(self, num_channels: int) -> None:
         pass
