@@ -13,3 +13,4 @@ dependencies:
   - v4l2py
   - git+https://github.com/ElTinmar/qt_widgets.git@main
   - git+https://github.com/ElTinmar/ipc_tools.git@main
+  - git+https://github.com/ElTinmar/video_tools.git@main

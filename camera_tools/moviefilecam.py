@@ -1,5 +1,6 @@
 from camera_tools.camera import Camera
 from camera_tools.frame import BaseFrame, Frame
+from video_tools import InMemory_OpenCV_VideoReader
 import time
 import numpy as np
 from numpy.typing import NDArray
@@ -36,6 +37,163 @@ class MovieFileCam(Camera):
             timestamp = time.monotonic() - self.time_start
             rval, img = self.reader.read()
             frame = BaseFrame(self.img_count, timestamp, img)
+            return frame
+    
+    def set_exposure(self, exp_time: float) -> None:
+        pass
+
+    def get_exposure(self) -> Optional[float]:
+        pass
+
+    def get_exposure_range(self) -> Optional[Tuple[float,float]]:
+        pass
+
+    def get_exposure_increment(self) -> Optional[float]:
+        pass
+
+    def set_framerate(self, fps: float) -> None:
+        pass
+    
+    def get_framerate(self) -> Optional[float]:
+        pass
+
+    def get_framerate_range(self) -> Optional[Tuple[float,float]]:
+        pass
+
+    def get_framerate_increment(self) -> Optional[float]:
+        pass
+
+    def set_gain(self, gain: float) -> None:
+        pass
+
+    def get_gain(self) -> Optional[float]:
+        pass
+
+    def get_gain_range(self) -> Optional[Tuple[float,float]]:
+        pass
+
+    def get_gain_increment(self) -> Optional[float]:
+        pass
+
+    def set_ROI(self, left: int, bottom: int, height: int, width: int) -> None:
+        pass
+
+    def get_ROI(self) -> Optional[Tuple[int,int,int,int]]:
+        pass
+
+    def set_offsetX(self, offsetX: int) -> None:
+        pass
+
+    def get_offsetX(self) -> Optional[int]:
+        pass
+
+    def get_offsetX_range(self) -> Optional[int]:
+        pass
+
+    def get_offsetX_increment(self) -> Optional[int]:
+        pass
+
+    def set_offsetY(self, offsetY: int) -> None:
+        pass
+
+    def get_offsetY(self) -> Optional[int]:
+        pass
+
+    def get_offsetY_range(self) -> Optional[int]:
+        pass
+
+    def get_offsetY_increment(self) -> Optional[int]:
+        pass
+
+    def set_width(self, width: int) -> None:
+        pass
+
+    def get_width(self) -> Optional[int]:
+        self.start_acquisition()
+        width = self.reader.get(cv2.CAP_PROP_FRAME_WIDTH)    
+        self.stop_acquisition()
+        return int(width)
+
+    def get_width_range(self) -> Optional[int]:
+        pass
+
+    def get_width_increment(self) -> Optional[int]:
+        pass 
+
+    def set_height(self, height) -> None:
+        pass
+    
+    def get_height(self) -> Optional[int]:
+        self.start_acquisition()
+        height = self.reader.get(cv2.CAP_PROP_FRAME_HEIGHT)    
+        self.stop_acquisition()
+        return int(height)
+    
+    def get_height_range(self) -> Optional[int]:
+        pass
+
+    def get_height_increment(self) -> Optional[int]:
+        pass 
+
+    def get_bit_depth(self) -> Optional[int]:
+        pass
+
+    def set_bit_depth(depth: int) -> None:
+        pass
+
+    def get_num_channels(self) -> Optional[int]:
+        pass
+
+    def set_num_channels(self, num_channels: int) -> None:
+        pass
+
+
+class BufferedMovieFileCam(Camera):
+    """
+    Buffer video from file into memory. Useful to profile algorithm
+    working on frames without being limitied by the speed of reading 
+    from disk
+    """
+
+    def __init__(
+            self, 
+            filename: str, 
+            memsize_bytes: int = 4e9, 
+            safe: bool = False,
+            single_precision: bool = True, 
+            grayscale: bool = True,
+            *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        self.img_count: int = 0
+        if not os.path.isfile(filename):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
+        
+        self.filename = filename
+        self.memsize_bytes = memsize_bytes
+        self.safe = safe
+        self.single_precision = single_precision
+        self.grayscale = grayscale 
+        self.reader = InMemory_OpenCV_VideoReader()
+
+    def start_acquisition(self) -> None:
+        self.reader.open_file(
+            filename = self.filename, 
+            memsize_bytes = self.memsize_bytes, 
+            safe = self.safe, 
+            single_precision = self.single_precision, # WEIRD pre-converting to SP makes the loop slower ???
+            grayscale = self.grayscale
+        )
+
+    def stop_acquisition(self) -> None:
+        self.reader.release()
+
+    def get_frame(self) -> Optional[Frame]:
+        if self.reader is not None:
+            self.img_count += 1
+            rval, img = self.reader.read()
+            frame = BaseFrame(self.img_count, time.perf_counter(), img)
             return frame
     
     def set_exposure(self, exp_time: float) -> None:
