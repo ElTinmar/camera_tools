@@ -7,6 +7,7 @@ from camera_tools import Camera, FrameRingBuffer, Frame
 import numpy as np
 from typing import Callable
 from queue import Empty
+import cv2
 
 # TODO show camera FPS, display FPS, and camera statistics in status bar
 # TODO subclass CameraWidget for camera with specifi controls
@@ -291,11 +292,13 @@ class CameraControl(QWidget):
         
 class CameraPreview(QWidget):
 
-    def __init__(self, camera_control: CameraControl, *args, **kwargs) -> None:
+    def __init__(self, camera_control: CameraControl, disp_height: int = 512, disp_width: int = 512, *args, **kwargs) -> None:
         
         super().__init__(*args, **kwargs)
 
         self.image_label = QLabel()
+        self.disp_height = disp_height
+        self.disp_width = disp_width 
         self._receiver = None
         self.thread_pool = QThreadPool()
         self.camera_control = camera_control
@@ -322,6 +325,7 @@ class CameraPreview(QWidget):
         self.receiver = FrameReceiver(buffer, self.update_image)
 
     def update_image(self, image: np.ndarray):
+        image = cv2.resize(image, (self.disp_width, self.disp_height))
         self.image_label.setPixmap(NDarray_to_QPixmap(image))
         
     def closeEvent(self, event):

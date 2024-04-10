@@ -132,27 +132,37 @@ class OpenCV_Webcam(Camera):
         pass 
 
     def get_bit_depth(self) -> Optional[int]:
-        format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
-        mapping = {
-            cv2.CV_8UC3: 8,
-            cv2.CV_8U: 8,
-            cv2.CV_16U: 16,
-            cv2.CV_16UC3: 16
-        }
-        return mapping[format]
+        try:
+            format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
+            mapping = {
+                cv2.CV_8UC3: 8,
+                cv2.CV_8U: 8,
+                cv2.CV_16U: 16,
+                cv2.CV_16UC3: 16
+            }
+            res = mapping[format]
+        except KeyError:
+            res = 8
 
+        return res
+    
     def set_bit_depth(depth: int) -> None:
         pass
 
     def get_num_channels(self) -> Optional[int]:
-        format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
-        mapping = {
-            cv2.CV_8UC3: 3,
-            cv2.CV_8U: 1,
-            cv2.CV_16U: 1,
-            cv2.CV_16UC3: 3
-        }
-        return mapping[format]
+        try:
+            format = int(self.camera.get(cv2.CAP_PROP_FORMAT))
+            mapping = {
+                cv2.CV_8UC3: 3,
+                cv2.CV_8U: 1,
+                cv2.CV_16U: 1,
+                cv2.CV_16UC3: 3
+            }
+            res = mapping[format]
+        except KeyError:
+            res = 3
+
+        return res 
 
     def set_num_channels(self, num_channels: int) -> None:
         pass
