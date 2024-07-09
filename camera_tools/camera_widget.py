@@ -45,7 +45,8 @@ class FrameSender(QRunnable):
                     if image.shape != self.shape:
                         self.image = image
                         self.buffer_signal.buffer_updated.emit()
-                    self.image[:] = frame.image[:]
+                    else:
+                        self.image[:] = frame.image[:]
 
 class CameraControl(QWidget):
 
