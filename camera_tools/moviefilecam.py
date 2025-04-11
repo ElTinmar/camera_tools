@@ -18,16 +18,17 @@ class MovieFileCam(Camera):
         super().__init__(*args, **kwargs)
 
         self.img_count: int = 0
-        self.time_start: float = time.monotonic()
         if not os.path.isfile(filename):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
         self.filename = filename
         self.reader = None
         self.fps = fps
+        self.video_fps = None
         self.prev_time = 0
 
     def start_acquisition(self) -> None:
         self.reader = cv2.VideoCapture(self.filename)
+        self.video_fps = self.reader.get(cv2.CAP_PROP_FPS)
 
     def stop_acquisition(self) -> None:
         self.reader.release()
@@ -39,7 +40,8 @@ class MovieFileCam(Camera):
         
         self.img_count += 1
         rval, img = self.reader.read()
-        timestamp = time.monotonic() - self.time_start
+        timestamp = self.img_count/self.video_fps
+
         frame = np.array(
             (self.img_count, timestamp, img),
             dtype = np.dtype([
@@ -49,22 +51,16 @@ class MovieFileCam(Camera):
             ])
         )
 
+        current_time = time.monotonic() 
+        
         if self.fps == 0:
-            self.prev_time = timestamp
+            self.prev_time = current_time
             return frame
 
-        while timestamp - self.prev_time < 1/self.fps:
-            timestamp = time.monotonic() - self.time_start
-            frame = np.array(
-                (self.img_count, timestamp, img),
-                dtype = np.dtype([
-                    ('index', int),
-                    ('timestamp', np.float32),
-                    ('image', img.dtype, img.shape)
-                ])
-            )
-            
-        self.prev_time = timestamp
+        while current_time - self.prev_time < 1/self.fps:
+            current_time = time.monotonic()
+
+        self.prev_time = current_time
         return frame
     
     def exposure_available(self) -> bool:
