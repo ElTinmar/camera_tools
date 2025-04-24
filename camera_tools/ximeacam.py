@@ -30,7 +30,7 @@ class XimeaCamera(Camera):
             self.xi_cam.set_acq_timing_mode('XI_ACQ_TIMING_MODE_FRAME_RATE_LIMIT')        
 
         # retrive most recent frame
-        self.xi_cam.enable_recent_frame()
+        #self.xi_cam.enable_recent_frame()
         
         # skip images if you dont process fast enough by reducing num images in buffer
         #self.xi_cam.set_buffers_queue_size(2)
