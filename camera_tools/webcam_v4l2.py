@@ -39,14 +39,14 @@ class V4L2_Webcam(Camera):
         self.camera = Device.from_id(self.camera_id) 
         self.camera.open()
         self.index = 0
-        self.time_start = time.monotonic()
+        self.time_start = time.perf_counter()
 
     def start_acquisition(self) -> None:
         self.camera.close()
         self.camera = Device.from_id(self.camera_id)
         self.camera.open()
         self.index = 0
-        self.time_start = time.monotonic()
+        self.time_start = time.perf_counter()
 
     def stop_acquisition(self) -> None:
         self.camera.close() 

@@ -14,21 +14,21 @@ class ZeroCam(Camera):
         super().__init__(*args, **kwargs)
 
         self.img_count: int = 0
-        self.time_start: float = time.monotonic()
+        self.time_start: float = time.perf_counter()
         self.shape = np.asarray(shape) 
         self.dtype = np.dtype(dtype)
         self.framerate = framerate
 
     def start_acquisition(self) -> None:
         self.index = 0
-        self.time_start = time.monotonic()
+        self.time_start = time.perf_counter()
 
     def stop_acquisition(self) -> None:
         pass
 
     def get_frame(self) -> NDArray:
 
-        timestamp = time.monotonic() - self.time_start
+        timestamp = time.perf_counter() - self.time_start
         self.img_count += 1
         img = np.zeros(self.shape, dtype=self.dtype)
         frame = np.array(
@@ -39,7 +39,7 @@ class ZeroCam(Camera):
                 ('image', self.dtype, self.shape)
             ])
         )
-        time.sleep(max(0, 1/self.framerate - (time.monotonic() - timestamp)))
+        time.sleep(max(0, 1/self.framerate - (time.perf_counter() - timestamp)))
         return frame
     
     def exposure_available(self) -> bool:

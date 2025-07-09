@@ -14,14 +14,14 @@ class RandomCam(Camera):
         super().__init__(*args,**kwargs)
 
         self.img_count: int = 0
-        self.time_start: float = time.monotonic()
+        self.time_start: float = time.perf_counter()
         self.shape = shape 
         self.dtype = dtype
 
     def get_frame(self) -> NDArray:
 
         self.img_count += 1
-        timestamp = time.monotonic() - self.time_start
+        timestamp = time.perf_counter() - self.time_start
 
         if np.issubdtype(self.dtype, np.integer):
             type_inf = np.iinfo(self.dtype)
@@ -47,7 +47,7 @@ class RandomCam(Camera):
     
     def start_acquisition(self) -> None:
         self.index = 0
-        self.time_start = time.monotonic()
+        self.time_start = time.perf_counter()
 
     def stop_acquisition(self) -> None:
         pass

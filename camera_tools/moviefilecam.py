@@ -51,14 +51,14 @@ class MovieFileCam(Camera):
             ])
         )
 
-        current_time = time.monotonic() 
+        current_time = time.perf_counter() 
         
         if self.fps == 0:
             self.prev_time = current_time
             return frame
 
         while current_time - self.prev_time < 1/self.fps:
-            current_time = time.monotonic()
+            current_time = time.perf_counter()
 
         self.prev_time = current_time
         return frame

@@ -51,7 +51,7 @@ class OpenCV_Webcam(Camera):
         self.camera_id = cam_id
         self.camera = cv2.VideoCapture(self.camera_id, self.backend) 
         self.index = 0
-        self.time_start = time.monotonic()
+        self.time_start = time.perf_counter()
         self.supported_formats = {}
         self.supported_configs = {}
         self.supported_configs_list = []
@@ -117,7 +117,7 @@ class OpenCV_Webcam(Camera):
         self.camera.release()
         self.camera = cv2.VideoCapture(self.camera_id, self.backend)
         self.index = 0
-        self.time_start = time.monotonic()
+        self.time_start = time.perf_counter()
         self.set_config(
             self.current_config['fourcc'],
             self.current_config['width'],
@@ -132,7 +132,7 @@ class OpenCV_Webcam(Camera):
         ret, img = self.camera.read()
         img_rgb = img[:,:,::-1]
         self.index += 1
-        timestamp = time.monotonic() - self.time_start
+        timestamp = time.perf_counter() - self.time_start
         frame = np.array(
             (self.index, timestamp, img_rgb),
             dtype = np.dtype([
@@ -288,7 +288,7 @@ class OpenCV_Webcam_InitEveryFrame(OpenCV_Webcam):
 
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.index += 1
-        timestamp = time.monotonic() - self.time_start
+        timestamp = time.perf_counter() - self.time_start
         frame = np.array(
             (self.index, timestamp, img_rgb),
             dtype = np.dtype([
@@ -305,7 +305,7 @@ class OpenCV_Webcam_Gray(OpenCV_Webcam):
         ret, img = self.camera.read()
         img_gray = im2gray(img)
         self.index += 1
-        timestamp = time.monotonic() - self.time_start
+        timestamp = time.perf_counter() - self.time_start
         frame = np.array(
             (self.index, timestamp, img_gray),
             dtype = np.dtype([
