@@ -34,12 +34,6 @@ class MovieFileCam(Camera):
         self.video_fps = self.reader.get(cv2.CAP_PROP_FPS)
         self.height = int(self.reader.get(cv2.CAP_PROP_FRAME_HEIGHT)) 
         self.width = int(self.reader.get(cv2.CAP_PROP_FRAME_WIDTH))
-
-        print([
-                ('index', int),
-                ('timestamp', np.float64),
-                ('image', np.uint8, (self.height, self.width, 3))
-            ])
          
         # preallocate memory
         self.frame = np.empty((),
