@@ -13,7 +13,7 @@ class MovieFileCam(Camera):
     Reads video from file
     """
 
-    def __init__(self, filename: str, fps:int = 60, *args, **kwargs):
+    def __init__(self, filename: str, fps:int = 60, safe: bool = False, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
@@ -23,12 +23,26 @@ class MovieFileCam(Camera):
         self.filename = filename
         self.reader = None
         self.fps = fps
+        self.width = None
+        self.height = None
         self.video_fps = None
         self.prev_time = 0
+        self.safe = safe
 
     def start_acquisition(self) -> None:
         self.reader = cv2.VideoCapture(self.filename)
         self.video_fps = self.reader.get(cv2.CAP_PROP_FPS)
+        self.width = self.reader.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.height =  self.reader.get(cv2.CAP_PROP_FRAME_HEIGHT)  
+
+        # preallocate memory
+        self.frame = np.empty((),
+            dtype=np.dtype([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.height, self.width, 3))
+            ])
+        )
 
     def stop_acquisition(self) -> None:
         self.reader.release()
@@ -42,26 +56,26 @@ class MovieFileCam(Camera):
         rval, img = self.reader.read()
         timestamp = self.img_count/self.video_fps
 
-        frame = np.array(
-            (self.img_count, timestamp, img),
-            dtype = np.dtype([
-                ('index', int),
-                ('timestamp', np.float32),
-                ('image', img.dtype, img.shape)
-            ])
-        )
+        self.frame['index'] = self.img_count
+        self.frame['timestamp'] = timestamp
+        self.frame['image'] = img
+
+        if self.safe:
+            output = self.frame.copy()
+        else:
+            output = self.frame
 
         current_time = time.perf_counter() 
         
         if self.fps == 0:
             self.prev_time = current_time
-            return frame
+            return output
 
         while current_time - self.prev_time < 1/self.fps:
             current_time = time.perf_counter()
 
         self.prev_time = current_time
-        return frame
+        return output
     
     def exposure_available(self) -> bool:
         return False
