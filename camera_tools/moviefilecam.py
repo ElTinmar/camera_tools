@@ -32,9 +32,15 @@ class MovieFileCam(Camera):
     def start_acquisition(self) -> None:
         self.reader = cv2.VideoCapture(self.filename)
         self.video_fps = self.reader.get(cv2.CAP_PROP_FPS)
+        self.height = self.reader.get(cv2.CAP_PROP_FRAME_HEIGHT) 
         self.width = self.reader.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.height = self.reader.get(cv2.CAP_PROP_FRAME_HEIGHT)  
 
+        print([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.height, self.width, 3))
+            ])
+         
         # preallocate memory
         self.frame = np.empty((),
             dtype=np.dtype([
