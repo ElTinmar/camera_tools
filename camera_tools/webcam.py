@@ -32,6 +32,7 @@ class OpenCV_Webcam(Camera):
     COMMON_FRAMERATES = [5.0, 10.0, 15.0, 20.0, 24.0, 30.0, 60.0, 120.0]
 
     COMMON_FORMATS = {
+        cv2.VideoWriter_fourcc(*"MJPG"): "MJPG",  # Motion JPEG (faster)
         cv2.VideoWriter_fourcc(*"YUYV"): "YUYV",  # YUV 4:2:2
         cv2.VideoWriter_fourcc(*"YUY2"): "YUY2",  # 4:2:2
         #cv2.VideoWriter_fourcc(*"YV12"): "YV12",
@@ -40,7 +41,6 @@ class OpenCV_Webcam(Camera):
         #cv2.VideoWriter_fourcc(*"RGB3"): "RGB3",
         #cv2.VideoWriter_fourcc(*"GREY"): "GREY",
         #cv2.VideoWriter_fourcc(*"I420"): "I420",  
-        cv2.VideoWriter_fourcc(*"MJPG"): "MJPG",  # Motion JPEG
     }
 
     def __init__(
