@@ -101,7 +101,6 @@ class OpenCV_Webcam(Camera):
             for width, height in self.COMMON_RESOLUTIONS:
                 valid_fps = []
                 for fps in self.COMMON_FRAMERATES:
-                    print(fps)
                     self.set_config(fourcc, width, height, fps)
                     config = self.get_config()
 
