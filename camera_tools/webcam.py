@@ -43,12 +43,19 @@ class OpenCV_Webcam(Camera):
         cv2.VideoWriter_fourcc(*"MJPG"): "MJPG",  # Motion JPEG
     }
 
-    def __init__(self, cam_id: int = 0, *args, **kwargs) -> None:
+    def __init__(
+            self, 
+            cam_id: int = 0, 
+            safe: bool = False,
+            *args, 
+            **kwargs
+        ) -> None:
         
         super().__init__(*args, **kwargs)
 
         self.backend = cv2.CAP_DSHOW if sys.platform.startswith("win") else cv2.CAP_ANY 
         self.camera_id = cam_id
+        self.safe = safe
         self.camera = cv2.VideoCapture(self.camera_id, self.backend) 
         self.index = 0
         self.time_start = time.perf_counter()
@@ -125,6 +132,15 @@ class OpenCV_Webcam(Camera):
             self.current_config['fps']
         )
 
+        # preallocate memory
+        self.frame = np.empty((),
+            dtype=np.dtype([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.current_config['height'], self.current_config['width'], 3))
+            ])
+        )
+
     def stop_acquisition(self) -> None:
         self.camera.release() 
     
@@ -133,15 +149,17 @@ class OpenCV_Webcam(Camera):
         img_rgb = img[:,:,::-1]
         self.index += 1
         timestamp = time.perf_counter() - self.time_start
-        frame = np.array(
-            (self.index, timestamp, img_rgb),
-            dtype = np.dtype([
-                ('index', int),
-                ('timestamp', np.float32),
-                ('image', img_rgb.dtype, img_rgb.shape)
-            ])
-        )
-        return frame
+        
+        self.frame['index'] = self.img_count
+        self.frame['timestamp'] = timestamp
+        self.frame['image'] = img
+        
+        if self.safe:
+            output = self.frame.copy()
+        else:
+            output = self.frame
+
+        return output 
     
     def exposure_available(self) -> bool:
         return False
