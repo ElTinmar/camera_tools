@@ -146,13 +146,12 @@ class OpenCV_Webcam(Camera):
     
     def get_frame(self) -> NDArray:
         ret, img = self.camera.read()
-        img_rgb = img[:,:,::-1]
         self.index += 1
         timestamp = time.perf_counter() - self.time_start
-        
+
         self.frame['index'] = self.img_count
         self.frame['timestamp'] = timestamp
-        self.frame['image'] = img
+        self.frame['image'] = img[:,:,::-1] # bgr to rgb
         
         if self.safe:
             output = self.frame.copy()
@@ -304,35 +303,59 @@ class OpenCV_Webcam_InitEveryFrame(OpenCV_Webcam):
         ret, img = self.camera.read()
         self.stop_acquisition()
 
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.index += 1
         timestamp = time.perf_counter() - self.time_start
-        frame = np.array(
-            (self.index, timestamp, img_rgb),
-            dtype = np.dtype([
-                ('index', int),
-                ('timestamp', np.float32),
-                ('image', img_rgb.dtype, img_rgb.shape)
-            ])
-        )
-        return frame
+
+        self.frame['index'] = self.img_count
+        self.frame['timestamp'] = timestamp
+        self.frame['image'] = img[:,:,::-1] # bgr to rgb
+        
+        if self.safe:
+            output = self.frame.copy()
+        else:
+            output = self.frame
+
+        return output 
 
 class OpenCV_Webcam_Gray(OpenCV_Webcam):
+
+    def start_acquisition(self) -> None:
+        self.camera.release()
+        self.camera = cv2.VideoCapture(self.camera_id, self.backend)
+        self.index = 0
+        self.time_start = time.perf_counter()
+        self.set_config(
+            self.current_config['fourcc'],
+            self.current_config['width'],
+            self.current_config['height'],
+            self.current_config['fps']
+        )
+
+        # preallocate memory
+        self.frame = np.empty((),
+            dtype=np.dtype([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.current_config['height'], self.current_config['width']))
+            ])
+        )
 
     def get_frame(self):
         ret, img = self.camera.read()
         img_gray = im2gray(img)
         self.index += 1
         timestamp = time.perf_counter() - self.time_start
-        frame = np.array(
-            (self.index, timestamp, img_gray),
-            dtype = np.dtype([
-                ('index', int),
-                ('timestamp', np.float32),
-                ('image', img_gray.dtype, img_gray.shape)
-            ])
-        )
-        return frame
+
+        self.frame['index'] = self.img_count
+        self.frame['timestamp'] = timestamp
+        self.frame['image'] = img_gray
+
+        if self.safe:
+            output = self.frame.copy()
+        else:
+            output = self.frame
+
+        return output 
 
     def get_num_channels(self):
         return 1
