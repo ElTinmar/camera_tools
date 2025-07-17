@@ -28,6 +28,7 @@ class MovieFileCam(Camera):
         self.video_fps = None
         self.prev_time = 0
         self.safe = safe
+        self.num_channels = 3 
 
     def start_acquisition(self) -> None:
         self.reader = cv2.VideoCapture(self.filename)
@@ -40,7 +41,7 @@ class MovieFileCam(Camera):
             dtype=np.dtype([
                 ('index', int),
                 ('timestamp', np.float64),
-                ('image', np.uint8, (self.height, self.width, 3))
+                ('image', np.uint8, (self.height, self.width, self.num_channels))
             ])
         )
 
@@ -198,7 +199,7 @@ class MovieFileCam(Camera):
         return 0 
     
     def get_num_channels(self) -> Optional[int]:
-        return 3
+        return self.num_channels
 
 
 
@@ -390,3 +391,53 @@ class BufferedMovieFileCam(Camera):
 
     def set_num_channels(self, num_channels: int) -> None:
         pass
+
+class MovieFileCamGray(MovieFileCam):
+
+    def start_acquisition(self) -> None:
+        self.reader = cv2.VideoCapture(self.filename)
+        self.video_fps = self.reader.get(cv2.CAP_PROP_FPS)
+        self.height = int(self.reader.get(cv2.CAP_PROP_FRAME_HEIGHT)) 
+        self.width = int(self.reader.get(cv2.CAP_PROP_FRAME_WIDTH))
+         
+        # preallocate memory
+        self.frame = np.empty((),
+            dtype=np.dtype([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.height, self.width))
+            ])
+        )
+
+    def get_frame(self) -> Optional[NDArray]:
+
+        if self.reader is None:
+            return
+        
+        self.img_count += 1
+        rval, img = self.reader.read()
+        timestamp = self.img_count/self.video_fps
+
+        self.frame['index'] = self.img_count
+        self.frame['timestamp'] = timestamp
+        self.frame['image'] = img[...,0]
+
+        if self.safe:
+            output = self.frame.copy()
+        else:
+            output = self.frame
+
+        current_time = time.perf_counter() 
+        
+        if self.fps == 0:
+            self.prev_time = current_time
+            return output
+
+        while current_time - self.prev_time < 1/self.fps:
+            current_time = time.perf_counter()
+
+        self.prev_time = current_time
+        return output
+    
+    def get_num_channels(self) -> Optional[int]:
+        return 1
