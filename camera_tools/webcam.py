@@ -149,7 +149,7 @@ class OpenCV_Webcam(Camera):
         self.index += 1
         timestamp = time.perf_counter() - self.time_start
 
-        self.frame['index'] = self.img_count
+        self.frame['index'] = self.index
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img[:,:,::-1] # bgr to rgb
         
@@ -306,7 +306,7 @@ class OpenCV_Webcam_InitEveryFrame(OpenCV_Webcam):
         self.index += 1
         timestamp = time.perf_counter() - self.time_start
 
-        self.frame['index'] = self.img_count
+        self.frame['index'] = self.index
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img[:,:,::-1] # bgr to rgb
         
@@ -346,7 +346,7 @@ class OpenCV_Webcam_Gray(OpenCV_Webcam):
         self.index += 1
         timestamp = time.perf_counter() - self.time_start
 
-        self.frame['index'] = self.img_count
+        self.frame['index'] = self.index
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img_gray
 
