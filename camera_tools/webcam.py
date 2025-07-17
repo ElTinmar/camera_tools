@@ -32,7 +32,6 @@ class OpenCV_Webcam(Camera):
     COMMON_FRAMERATES = [5.0, 10.0, 15.0, 20.0, 24.0, 30.0, 60.0, 120.0]
 
     COMMON_FORMATS = {
-        cv2.VideoWriter_fourcc(*"MJPG"): "MJPG",  # Motion JPEG (faster)
         cv2.VideoWriter_fourcc(*"YUYV"): "YUYV",  # YUV 4:2:2
         cv2.VideoWriter_fourcc(*"YUY2"): "YUY2",  # 4:2:2
         #cv2.VideoWriter_fourcc(*"YV12"): "YV12",
@@ -41,6 +40,7 @@ class OpenCV_Webcam(Camera):
         #cv2.VideoWriter_fourcc(*"RGB3"): "RGB3",
         #cv2.VideoWriter_fourcc(*"GREY"): "GREY",
         #cv2.VideoWriter_fourcc(*"I420"): "I420",  
+        cv2.VideoWriter_fourcc(*"MJPG"): "MJPG",  # Motion JPEG
     }
 
     def __init__(
@@ -65,6 +65,7 @@ class OpenCV_Webcam(Camera):
         self.get_supported_configs()
         if self.supported_configs_list:
             self.current_config = self.supported_configs_list[-1]
+            print(self.current_config)
             self.set_config(
                 self.current_config['fourcc'],
                 self.current_config['width'],
@@ -97,9 +98,7 @@ class OpenCV_Webcam(Camera):
     def get_supported_configs(self):
         self.get_supported_formats()
         for fourcc, format_name in self.supported_formats.items():
-            print(format_name)
             for width, height in self.COMMON_RESOLUTIONS:
-                print(width, height)
                 valid_fps = []
                 for fps in self.COMMON_FRAMERATES:
                     print(fps)
