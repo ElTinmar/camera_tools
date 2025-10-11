@@ -6,7 +6,6 @@ import tarfile
 import urllib.request
 import argparse
 
-EXPECTED_ENV_NAME = "ZebVR3"
 SDK_URL = "https://updates.ximea.com/public/ximea_linux_sp.tgz"
 SDK_ARCHIVE = "ximea_linux_sp.tgz"
 SDK_FOLDER = "package"
@@ -30,12 +29,6 @@ def check_conda_environment():
         sys.exit(1)
 
     env_name = os.path.basename(conda_prefix)
-    if env_name != EXPECTED_ENV_NAME:
-        print(f"Warning: Active conda environment is '{env_name}', expected '{EXPECTED_ENV_NAME}'")
-        proceed = input("Continue anyway? [y/N] ").strip().lower()
-        if proceed != "y":
-            sys.exit(1)
-    
     print(f"Conda environment '{env_name}' is active.")
     return conda_prefix
 
