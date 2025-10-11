@@ -2,6 +2,8 @@ from .camera import *
 from .camera_widget import *
 from .randomcam import *
 from .zerocam import *
+import setup_ximea
+import setup_spinnaker
 
 try:
     from .webcam import *
