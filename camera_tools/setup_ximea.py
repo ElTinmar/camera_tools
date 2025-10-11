@@ -25,7 +25,7 @@ def check_conda_environment():
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         print("Conda environment not active. Please run:")
-        print(f"   conda activate {EXPECTED_ENV_NAME}")
+        print(f"   conda activate env_name")
         sys.exit(1)
 
     env_name = os.path.basename(conda_prefix)
