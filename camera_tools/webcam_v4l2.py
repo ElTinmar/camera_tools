@@ -1,6 +1,6 @@
 import warnings
-from v4l2py.device import Device, BufferType 
 warnings.filterwarnings("ignore", category=UserWarning, module="v4l2py")
+from v4l2py.device import Device, BufferType 
 import time
 import numpy as np
 from numpy.typing import NDArray
