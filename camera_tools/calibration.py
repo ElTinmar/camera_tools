@@ -4,6 +4,8 @@ from numpy.typing import NDArray
 import cv2
 from numpy.linalg import lstsq
 import numpy as np
+from qt_widgets import imshow, waitKey, destroyAllWindows, destroyWindow
+from PyQt5.QtCore import Qt
 
 def get_camera_distortion(
         cam: Camera, 
@@ -78,7 +80,6 @@ def get_checkerboard_corners(
 
     retry = 0
     checkerboard_found = False
-    cv2.namedWindow('camera')
 
     while not checkerboard_found:
        
@@ -95,10 +96,10 @@ def get_checkerboard_corners(
         image_small = cv2.resize(image, (width,height), interpolation=cv2.INTER_AREA)
 
         # display image, detect corners if y is pressed
-        cv2.imshow('camera', image_small)
-        key = cv2.waitKey(1)
+        imshow('camera', image_small)
+        key = waitKey(1)
 
-        if key == ord('y'):
+        if key == Qt.Key_Y:
             
             flags = cv2.CALIB_CB_ACCURACY  
             checkerboard_found, corners_sub = cv2.findChessboardCornersSB(image_small, checkerboard_size, flags=flags)
@@ -108,15 +109,15 @@ def get_checkerboard_corners(
                 # show corners
                 image_RGB = np.dstack((image_small,image_small,image_small))
                 cv2.drawChessboardCorners(image_RGB, checkerboard_size, corners_sub, checkerboard_found)
-                cv2.imshow('chessboard', image_RGB)
-                key = cv2.waitKey(0)
+                imshow('chessboard', image_RGB)
+                key = waitKey(0)
 
                 # return images and detected corner if y is pressed
-                if key == ord('y'):
-                    cv2.destroyAllWindows()
+                if key == Qt.Key_Y:
+                    destroyAllWindows()
                     return image, np.array(corners_sub)*image.shape[0]/height
                 else:
-                    cv2.destroyWindow('chessboard')
+                    destroyWindow('chessboard')
                     checkerboard_found = False
             
             else:
@@ -153,7 +154,7 @@ def get_camera_px_per_mm(
     world_coords[:,:2] = checkerboard_corners_world_coordinates_mm[:,:2] 
 
     corners_px = corners_px.squeeze()
-    image_coords =  np.ones_like(checkerboard_corners_world_coordinates_mm)
+    image_coords = np.ones_like(checkerboard_corners_world_coordinates_mm)
     image_coords[:,:2] = corners_px
 
     # least square fit 

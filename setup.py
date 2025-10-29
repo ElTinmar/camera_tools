@@ -4,7 +4,7 @@ setup(
     name='camera_tools',
     python_requires='>=3.8',
     author='Martin Privat',
-    version='0.6.2',
+    version='0.6.3',
     packages=['camera_tools','camera_tools.tests'],
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
     description='camera tools',
@@ -12,9 +12,10 @@ setup(
     install_requires=[
         "numpy", 
         "PyQt5",
-        "opencv-python",
+        "opencv-python-headless",
         "harvesters",
         "v4l2py",
-        "video_tools @ git+https://github.com/ElTinmar/video_tools.git@main"
+        "video_tools @ git+https://github.com/ElTinmar/video_tools.git@main",
+        "qt_widgets @  git+https://github.com/ElTinmar/qt_widgets.git@main"
     ]
 )
