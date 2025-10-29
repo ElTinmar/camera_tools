@@ -97,7 +97,7 @@ def get_checkerboard_corners(
 
         # display image, detect corners if y is pressed
         imshow('camera', image_small)
-        key = waitKey(1)
+        key = waitKey(100)
 
         if key == Qt.Key_Y:
             
