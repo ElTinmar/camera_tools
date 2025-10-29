@@ -2,8 +2,8 @@ name: camera_tools
 channels:
 - conda-forge
 dependencies:
-- python == 3.8.16
-- ffmpeg == 4.2.2
+- python >= 3.8
+- ffmpeg
 - ipython
 - pip
 - pyqt
