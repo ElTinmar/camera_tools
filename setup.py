@@ -15,7 +15,6 @@ setup(
         "opencv-python-headless",
         "harvesters",
         "v4l2py",
-        "pupil-labs-uvc",
         "video_tools @ git+https://github.com/ElTinmar/video_tools.git@main",
         "qt_widgets @  git+https://github.com/ElTinmar/qt_widgets.git@main"
     ]
