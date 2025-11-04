@@ -6,6 +6,16 @@ handle various camera
 pip install git+https://github.com/ElTinmar/camera_tools.git@main
 ```
 
+# PyUVC
+
+On ubuntu you need to add udev rules for each webcam:
+
+```
+echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="085b", MODE="0664", GROUP="plugdev"' | sudo tee /etc/udev/rules.d/99-webcams.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
 # Ximea
 
 Install xiAPI
@@ -28,7 +38,7 @@ https://www.teledynevisionsolutions.com/products/spinnaker-sdk
 ## Install dependencies
 
 ```
-sudo apt-get install libusb-1.0-0 libpcre2-16-0 libdouble-conversion3 libxcb-xinput0 libxcb-xinerama0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools
+sudo apt-get install libusb-1.0-0 libpcre2-16-0 libdouble-conversion3 libxcb-xinput0 libxcb-xinerama0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libturbojpeg-dev libusb-1.0-0-dev
 ```
 
 ## Install old version of ffmpeg
