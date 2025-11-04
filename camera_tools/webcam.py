@@ -87,7 +87,6 @@ class OpenCV_Webcam(Camera):
         width = int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = self.camera.get(cv2.CAP_PROP_FPS)
-        print((fourcc, width, height, fps))
         format = self.COMMON_FORMATS.get(fourcc, 'unknown fourcc')
         return {'format': format, 'fourcc': fourcc, 'width': width, 'height': height, 'fps': fps}
 
