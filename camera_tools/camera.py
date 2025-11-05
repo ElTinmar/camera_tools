@@ -3,7 +3,8 @@ from typing import Optional, Tuple
 from numpy.typing import NDArray
 
 # TODO add methods for binning / decimation
-
+# __init__ and __del__ acquire and release camera lock respectively
+ 
 class Camera(ABC):
 
     @abstractmethod
