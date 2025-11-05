@@ -323,7 +323,6 @@ class OpenCV_Webcam(Camera):
         config = self.get_config()
         #print(f'get_height_range: {config}')
         valid_height = self.supported_configs[config['format']][config['width']].keys()
-        print(self.supported_configs[config['format']][config['width']], valid_height)
         return (int(min(valid_height)), int(max(valid_height)))
 
     def get_height_increment(self) -> Optional[int]:
