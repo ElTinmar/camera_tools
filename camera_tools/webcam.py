@@ -67,7 +67,6 @@ class OpenCV_Webcam(Camera):
         self.get_supported_configs()
         if self.supported_configs_list:
             self.current_config = self.supported_configs_list[-1]
-            #print(self.current_config)
             self.set_config(
                 self.current_config['fourcc'],
                 self.current_config['width'],
@@ -186,7 +185,6 @@ class OpenCV_Webcam(Camera):
         if self.camera is not None:
             self.camera.set(cv2.CAP_PROP_FPS, fps)
         self.current_config = self.get_config()
-        #print(f'set_framerate: {self.current_config}')
        
     def get_framerate(self) -> Optional[float]:
         if self.camera is not None:
@@ -194,7 +192,6 @@ class OpenCV_Webcam(Camera):
 
     def get_framerate_range(self) -> Optional[Tuple[float,float]]:
         config = self.get_config()
-        #print(f'get_framerate_range: {config}')
         valid_fps = self.supported_configs[config['format']][config['width']][config['height']]
         return (min(valid_fps), max(valid_fps))
 
@@ -263,12 +260,10 @@ class OpenCV_Webcam(Camera):
         
         config_width = self.supported_configs[config['format']]
         if width not in config_width.keys():
-            print(f'set_resolution: {width}x{height} invalid')
             return
         
         config_height = config_width[width]
         if height not in config_height.keys():
-            print(f'set_resolution: {width}x{height} invalid')
             return
         
         self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
