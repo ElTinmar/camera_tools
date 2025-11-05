@@ -100,7 +100,7 @@ class OpenCV_Webcam(Camera):
         self._reset()
 
     def stop_acquisition(self) -> None:
-        self._reset()
+        pass
     
     def set_config(self, fourcc: int, width: int, height: int, fps: float) -> None:
         self.camera.set(cv2.CAP_PROP_FOURCC, fourcc)
@@ -292,6 +292,11 @@ class OpenCV_Webcam(Camera):
     
     def get_num_channels(self):
         return 3
+    
+    def __del__(self):
+        if self.camera is not None:
+            self.camera.release()
+
 
 class OpenCV_Webcam_InitEveryFrame(OpenCV_Webcam):
 
