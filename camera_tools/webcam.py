@@ -263,10 +263,12 @@ class OpenCV_Webcam(Camera):
         
         config_width = self.supported_configs[config['format']]
         if width not in config_width.keys():
+            print(f'set_resolution: {width}x{height} invalid')
             return
         
         config_height = config_width[width]
         if height not in config_height.keys():
+            print(f'set_resolution: {width}x{height} invalid')
             return
         
         self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
@@ -305,7 +307,7 @@ class OpenCV_Webcam(Camera):
     def height_available(self) -> bool:
         return True
     
-    def set_height(self, height) -> None:
+    def set_height(self, height: int) -> None:
         
         self._height = height
         
