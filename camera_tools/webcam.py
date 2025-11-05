@@ -296,10 +296,8 @@ class OpenCV_Webcam(Camera):
         return int(self.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
 
     def get_width_range(self) -> Optional[Tuple[int,int]]:
-        config = self.get_config()
-        #print(f'get_width_range: {config}')
-        valid_width = self.supported_configs[config['format']].keys()
-        return (int(min(valid_width)), int(max(valid_width)))
+        width_values = [d['width'] for d in self.supported_configs_list]
+        return (int(min(width_values)), int(max(width_values)))
     
     def get_width_increment(self) -> Optional[int]:
         return 2  
@@ -320,10 +318,8 @@ class OpenCV_Webcam(Camera):
         return int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
     def get_height_range(self) -> Optional[Tuple[int,int]]:
-        config = self.get_config()
-        #print(f'get_height_range: {config}')
-        valid_height = self.supported_configs[config['format']][config['width']].keys()
-        return (int(min(valid_height)), int(max(valid_height)))
+        height_values = [d['height'] for d in self.supported_configs_list]
+        return (int(min(height_values)), int(max(height_values)))
 
     def get_height_increment(self) -> Optional[int]:
         return 2 
