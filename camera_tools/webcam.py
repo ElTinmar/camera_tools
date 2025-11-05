@@ -191,9 +191,8 @@ class OpenCV_Webcam(Camera):
             return self.camera.get(cv2.CAP_PROP_FPS)
 
     def get_framerate_range(self) -> Optional[Tuple[float,float]]:
-        config = self.get_config()
-        valid_fps = self.supported_configs[config['format']][config['width']][config['height']]
-        return (min(valid_fps), max(valid_fps))
+        framerate_values = [d['fps'] for d in self.supported_configs_list]
+        return (min(framerate_values), max(framerate_values))
 
     def get_framerate_increment(self) -> Optional[float]:
         return 1
