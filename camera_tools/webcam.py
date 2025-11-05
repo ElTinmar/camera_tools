@@ -116,7 +116,6 @@ class OpenCV_Webcam(Camera):
         fps = self.camera.get(cv2.CAP_PROP_FPS)
         format = self.COMMON_FORMATS.get(fourcc, 'unknown fourcc')
         res = {'format': format, 'fourcc': fourcc, 'width': width, 'height': height, 'fps': fps}
-        print(res)
         return res
 
     def get_supported_formats(self):
@@ -185,6 +184,7 @@ class OpenCV_Webcam(Camera):
         if self.camera is not None:
             self.camera.set(cv2.CAP_PROP_FPS, fps)
         self.current_config = self.get_config()
+        print(f'set_framerate: {self.current_config}')
        
     def get_framerate(self) -> Optional[float]:
         if self.camera is not None:
@@ -192,6 +192,7 @@ class OpenCV_Webcam(Camera):
 
     def get_framerate_range(self) -> Optional[Tuple[float,float]]:
         config = self.get_config()
+        print(f'get_framerate_range: {config}')
         valid_fps = self.supported_configs[config['format']][config['width']][config['height']]
         return (min(valid_fps), max(valid_fps))
 
@@ -262,6 +263,7 @@ class OpenCV_Webcam(Camera):
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, valid_height[-1])
         self.current_config = self.get_config()
+        print(f'set_width: {self.current_config}')
 
         self.frame = np.empty((),
             dtype=np.dtype([
@@ -276,6 +278,7 @@ class OpenCV_Webcam(Camera):
 
     def get_width_range(self) -> Optional[Tuple[int,int]]:
         config = self.get_config()
+        print(f'get_width_range: {config}')
         valid_width = self.supported_configs[config['format']].keys()
         return (int(min(valid_width)), int(max(valid_width)))
     
@@ -288,6 +291,7 @@ class OpenCV_Webcam(Camera):
     def set_height(self, height) -> None:
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         self.current_config = self.get_config()
+        print(f'set_height: {self.current_config}')
 
         self.frame = np.empty((),
             dtype=np.dtype([
@@ -302,6 +306,7 @@ class OpenCV_Webcam(Camera):
     
     def get_height_range(self) -> Optional[Tuple[int,int]]:
         config = self.get_config()
+        print(f'get_height_range: {config}')
         valid_height = self.supported_configs[config['format']][config['width']].keys()
         return (int(min(valid_height)), int(max(valid_height)))
 
