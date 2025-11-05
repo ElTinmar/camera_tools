@@ -115,7 +115,9 @@ class OpenCV_Webcam(Camera):
         height = int(self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = self.camera.get(cv2.CAP_PROP_FPS)
         format = self.COMMON_FORMATS.get(fourcc, 'unknown fourcc')
-        return {'format': format, 'fourcc': fourcc, 'width': width, 'height': height, 'fps': fps}
+        res = {'format': format, 'fourcc': fourcc, 'width': width, 'height': height, 'fps': fps}
+        print(res)
+        return res
 
     def get_supported_formats(self):
         for fourcc, format_name in self.COMMON_FORMATS.items():
