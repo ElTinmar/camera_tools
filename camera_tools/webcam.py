@@ -75,7 +75,7 @@ class OpenCV_Webcam(Camera):
         else:
             RuntimeError('No supported camera config found')
 
-    def start_acquisition(self) -> None:
+    def _reset(self):
         self.camera.release()
         self.camera = cv2.VideoCapture(self.camera_id, self.backend)
         self.index = 0
@@ -96,15 +96,11 @@ class OpenCV_Webcam(Camera):
             ])
         )
 
+    def start_acquisition(self) -> None:
+        self._reset()
+
     def stop_acquisition(self) -> None:
-        self.camera.release() 
-        self.camera = cv2.VideoCapture(self.camera_id, self.backend)
-        self.set_config(
-            self.current_config['fourcc'],
-            self.current_config['width'],
-            self.current_config['height'],
-            self.current_config['fps']
-        )
+        self._reset()
     
     def set_config(self, fourcc: int, width: int, height: int, fps: float) -> None:
         self.camera.set(cv2.CAP_PROP_FOURCC, fourcc)
