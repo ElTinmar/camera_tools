@@ -75,6 +75,37 @@ class OpenCV_Webcam(Camera):
         else:
             RuntimeError('No supported camera config found')
 
+    def start_acquisition(self) -> None:
+        self.camera.release()
+        self.camera = cv2.VideoCapture(self.camera_id, self.backend)
+        self.index = 0
+        self.time_start = time.perf_counter()
+        self.set_config(
+            self.current_config['fourcc'],
+            self.current_config['width'],
+            self.current_config['height'],
+            self.current_config['fps']
+        )
+
+        # preallocate memory
+        self.frame = np.empty((),
+            dtype=np.dtype([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.current_config['height'], self.current_config['width'], 3))
+            ])
+        )
+
+    def stop_acquisition(self) -> None:
+        self.camera.release() 
+        self.camera = cv2.VideoCapture(self.camera_id, self.backend)
+        self.set_config(
+            self.current_config['fourcc'],
+            self.current_config['width'],
+            self.current_config['height'],
+            self.current_config['fps']
+        )
+    
     def set_config(self, fourcc: int, width: int, height: int, fps: float) -> None:
         self.camera.set(cv2.CAP_PROP_FOURCC, fourcc)
         self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
@@ -118,30 +149,6 @@ class OpenCV_Webcam(Camera):
                         self.supported_configs[format_name][width] = {}
                     self.supported_configs[format_name][width][height] = valid_fps
                 
-    def start_acquisition(self) -> None:
-        self.camera.release()
-        self.camera = cv2.VideoCapture(self.camera_id, self.backend)
-        self.index = 0
-        self.time_start = time.perf_counter()
-        self.set_config(
-            self.current_config['fourcc'],
-            self.current_config['width'],
-            self.current_config['height'],
-            self.current_config['fps']
-        )
-
-        # preallocate memory
-        self.frame = np.empty((),
-            dtype=np.dtype([
-                ('index', int),
-                ('timestamp', np.float64),
-                ('image', np.uint8, (self.current_config['height'], self.current_config['width'], 3))
-            ])
-        )
-
-    def stop_acquisition(self) -> None:
-        self.camera.release() 
-    
     def get_frame(self) -> NDArray:
         ret, img = self.camera.read()
         self.index += 1
