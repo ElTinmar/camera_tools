@@ -381,7 +381,35 @@ class OpenCV_Webcam_Gray(OpenCV_Webcam):
 
     def get_num_channels(self):
         return 1
-    
+
+    def set_width(self, width: int) -> None:
+        config = self.get_config()
+        if width in self.supported_configs[config['format']].keys():
+            valid_height = list(self.supported_configs[config['format']][width].keys())
+            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, valid_height[-1])
+        self.current_config = self.get_config()
+
+        self.frame = np.empty((),
+            dtype=np.dtype([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.current_config['height'], self.current_config['width']))
+            ])
+        )
+
+    def set_height(self, height) -> None:
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        self.current_config = self.get_config()
+
+        self.frame = np.empty((),
+            dtype=np.dtype([
+                ('index', int),
+                ('timestamp', np.float64),
+                ('image', np.uint8, (self.current_config['height'], self.current_config['width']))
+            ])
+        )
+
 class OpenCV_Webcam_LastFrame(OpenCV_Webcam):
 
     # workaround to clear buffer and always get last frame. 
