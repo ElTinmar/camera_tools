@@ -195,7 +195,7 @@ class OpenCV_Webcam(Camera):
         return (min(framerate_values), max(framerate_values))
 
     def get_framerate_increment(self) -> Optional[float]:
-        return 1
+        return 1.0
 
     def gain_available(self) -> bool:
         return False
@@ -318,7 +318,7 @@ class OpenCV_Webcam(Camera):
     def get_height_increment(self) -> Optional[int]:
         return 2 
     
-    def get_num_channels(self):
+    def get_num_channels(self) -> int:
         return 3
     
     def __del__(self):
@@ -391,7 +391,7 @@ class OpenCV_Webcam_Gray(OpenCV_Webcam):
 
         return output 
 
-    def get_num_channels(self):
+    def get_num_channels(self) -> int:
         return 1
 
     def set_resolution(self, width: int, height: int):
