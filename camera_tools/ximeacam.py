@@ -112,10 +112,10 @@ class XimeaCamera(Camera):
     
     def set_ROI(self, left: int, bottom: int, height: int, width: int) -> None:
         try:
-            self.xi_cam.set_width(int(width))
-            self.xi_cam.set_height(int(height))
-            self.xi_cam.set_offsetX(int(left))
-            self.xi_cam.set_offsetY(int(bottom))
+            self.set_width(width)
+            self.set_height(height)
+            self.set_offsetX(left)
+            self.set_offsetY(bottom)
         except xiapi.Xi_error:
             pass
 
@@ -123,8 +123,14 @@ class XimeaCamera(Camera):
         pass
 
     def set_offsetX(self, offsetX: int) -> None:
+        offsetX_min, offsetX_max = self.get_offsetX_range()
+        offsetX_inc = self.get_offsetX_increment()
+
+        closest_valid_offsetX = round(offsetX/offsetX_inc)*offsetX_inc
+        clamped_offsetX = max(offsetX_min, min(offsetX_max, closest_valid_offsetX))
+    
         try:
-            self.xi_cam.set_offsetX(int(offsetX))
+            self.xi_cam.set_offsetX(int(clamped_offsetX))
         except xiapi.Xi_error:
             pass
 
@@ -143,8 +149,14 @@ class XimeaCamera(Camera):
         return self.xi_cam.get_offsetX_increment()
 
     def set_offsetY(self, offsetY: int) -> None:
+        offsetY_min, offsetY_max = self.get_offsetY_range()
+        offsetY_inc = self.get_offsetY_increment()
+
+        closest_valid_offsetY = round(offsetY/offsetY_inc)*offsetY_inc
+        clamped_offsetY = max(offsetY_min, min(offsetY_max, closest_valid_offsetY))
+
         try:
-            self.xi_cam.set_offsetY(int(offsetY))
+            self.xi_cam.set_offsetY(int(clamped_offsetY))
         except xiapi.Xi_error:
             pass
 
@@ -166,8 +178,14 @@ class XimeaCamera(Camera):
         return True
     
     def set_width(self, width: int) -> None:
+        width_min, width_max = self.get_width_range()
+        width_inc = self.get_width_increment()
+
+        closest_valid_width = round(width/width_inc)*width_inc
+        clamped_width = max(width_min, min(width_max, closest_valid_width))
+        
         try:
-            self.xi_cam.set_width(int(width))
+            self.xi_cam.set_width(int(clamped_width))
         except xiapi.Xi_error:
             pass
 
@@ -186,8 +204,14 @@ class XimeaCamera(Camera):
         return True
     
     def set_height(self, height: int) -> None:
+        height_min, height_max = self.get_height_range()
+        height_inc = self.get_height_increment()
+
+        closest_valid_height = round(height/height_inc)*height_inc
+        clamped_height = max(height_min, min(height_max, closest_valid_height))
+        
         try:
-            self.xi_cam.set_height(int(height))
+            self.xi_cam.set_height(int(clamped_height))
         except xiapi.Xi_error:
                 pass
         
