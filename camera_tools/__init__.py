@@ -28,13 +28,13 @@ try:
     from .ximeacam import *
 except ModuleNotFoundError:
     print('module ximea not found, ximea cameras not available')
-except OSError:
-    print('issue with ximea, try reinstalling XIMEA')
+except OSError as e:
+    print('OSError: {e}. Issue with ximea, try reinstalling XIMEA')
 
 
 try:
     from .spinnaker import *
 except ModuleNotFoundError:
     print('module spinnaker not found, spinnaker cameras not available')
-except OSError:
-    print('issue with spinnaker, try reinstalling Spinnaker SDK')
+except OSError as e:
+    print('OSError: {e}. Issue with spinnaker, try reinstalling Spinnaker SDK')
