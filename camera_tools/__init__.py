@@ -29,7 +29,7 @@ try:
 except ModuleNotFoundError:
     print('module ximea not found, ximea cameras not available')
 except OSError as e:
-    print('OSError: {e}. Issue with ximea, try reinstalling XIMEA')
+    print(f'OSError: {e}. Issue with ximea, try reinstalling XIMEA')
 
 
 try:
@@ -37,4 +37,4 @@ try:
 except ModuleNotFoundError:
     print('module spinnaker not found, spinnaker cameras not available')
 except OSError as e:
-    print('OSError: {e}. Issue with spinnaker, try reinstalling Spinnaker SDK')
+    print(f'OSError: {e}. Issue with spinnaker, try reinstalling Spinnaker SDK')
