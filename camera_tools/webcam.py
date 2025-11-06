@@ -182,9 +182,11 @@ class OpenCV_Webcam(Camera):
         return True
     
     def set_framerate(self, fps: float) -> None:
+        print(f'set fps {fps}')
         if self.camera is not None:
             self.camera.set(cv2.CAP_PROP_FPS, fps)
         self.current_config = self.get_config()
+        print(f"got fps {self.current_config['fps']}")
        
     def get_framerate(self) -> Optional[float]:
         if self.camera is not None:
