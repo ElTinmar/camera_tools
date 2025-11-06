@@ -53,7 +53,10 @@ class XimeaCamera(Camera):
         return True
 
     def set_exposure(self, exp_time: float) -> None:
-        self.xi_cam.set_exposure(exp_time)
+        try:
+            self.xi_cam.set_exposure(exp_time)
+        except xiapi.Xi_error:
+            pass   
 
     def get_exposure(self) -> Optional[float]:
         return self.xi_cam.get_exposure()
@@ -77,7 +80,11 @@ class XimeaCamera(Camera):
                 self.xi_cam.set_acq_timing_mode('XI_ACQ_TIMING_MODE_FRAME_RATE')
             else:
                 self.xi_cam.set_acq_timing_mode('XI_ACQ_TIMING_MODE_FRAME_RATE_LIMIT')
-            self.xi_cam.set_framerate(fps)
+            
+            try:
+                self.xi_cam.set_framerate(fps)
+            except xiapi.Xi_error:
+                pass   
 
     def get_framerate(self) -> Optional[float]:
         return self.xi_cam.get_framerate()
@@ -94,7 +101,10 @@ class XimeaCamera(Camera):
         return True
     
     def set_gain(self, gain: float) -> None:
-        self.xi_cam.set_gain(gain)
+        try:
+            self.xi_cam.set_gain(gain)
+        except xiapi.Xi_error:
+            pass   
 
     def get_gain(self) -> Optional[float]:
         return self.xi_cam.get_gain()
