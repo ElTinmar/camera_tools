@@ -17,6 +17,8 @@ import sys
 # this also not very efficient on linux. Find a way to get supported
 # format faster 
 
+# TODO handle format selection in the __init__
+
 class OpenCV_Webcam(Camera):
 
     COMMON_RESOLUTIONS = [
