@@ -333,6 +333,7 @@ class OpenCV_Webcam(Camera):
             self.camera.release()
 
 
+# video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0) before every video_capture.read() ?
 class OpenCV_Webcam_InitEveryFrame(OpenCV_Webcam):
 
     # workaround to clear buffer and always get last frame. 
@@ -423,6 +424,8 @@ class OpenCV_Webcam_Gray(OpenCV_Webcam):
                 ('image', np.uint8, (self.current_config['height'], self.current_config['width']))
             ])
         )
+
+    
 
 class OpenCV_Webcam_LastFrame(OpenCV_Webcam):
 
