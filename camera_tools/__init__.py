@@ -9,10 +9,10 @@ try:
 except ModuleNotFoundError:
     print('webcam not available')
 
-try:
-    from .webcam_v4l2 import *
-except ModuleNotFoundError:
-    print('v4l2 not available')
+# try:
+#     from .webcam_v4l2 import *
+# except ModuleNotFoundError:
+#     print('v4l2 not available')
 
 try:
     from .moviefilecam import *
