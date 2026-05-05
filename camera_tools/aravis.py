@@ -31,11 +31,11 @@ class AravisCamera(Camera):
         self.cam.set_pixel_format(Aravis.PIXEL_FORMAT_MONO_8)
         self.cam.set_binning(dx=1, dy=1)    
 
-
         self.stream = self.cam.create_stream(None, None)
         self.reallocate_buffers() 
 
     def reallocate_buffers(self) -> None:
+        # TODO maybe I can allocate once in __init__ with sensor size
         payload = self.cam.get_payload()
         self.stream.delete_buffers()
         for i in range(self.num_buffers):
@@ -188,7 +188,7 @@ class AravisCamera(Camera):
         h = buffer.get_image_height()
         w = buffer.get_image_width()
         raw_pixeldata = buffer.get_image_data()
-        pixeldata = np.frombuffer(raw_pixeldata, np.uint8).reshape(h,w)
+        pixeldata = np.frombuffer(raw_pixeldata, np.uint8).reshape(h,w) # may need to copy
         im_num = buffer.get_frame_id()
         ts_nsec = buffer.get_timestamp()
         timestamp = ts_nsec*1e-9
@@ -214,6 +214,9 @@ class AravisCamera(Camera):
     
     def __del__(self) -> None:
 
-        del self.cam
+        if self.cam is not None:
+            self.cam.stop_acquisition()
+            del self.cam
+        self.stream = None
         self.cam = None
         
