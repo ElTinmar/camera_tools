@@ -6,6 +6,20 @@ handle various camera
 pip install git+https://github.com/ElTinmar/camera_tools.git@main
 ```
 
+
+# Aravis 
+
+```
+conda env create -f camera_tools.yml
+conda activate camera_tools
+git clone https://github.com/AravisProject/aravis.git
+cd aravis 
+meson setup build --prefix=$CONDA_PREFIX -Dintrospection=enabled -Dviewer=disabled -Dtests=true --libdir=lib
+ninja -C build install
+cd ..
+rm -rf aravis
+```
+
 # PyUVC
 
 On ubuntu you need to add udev rules for each webcam:
