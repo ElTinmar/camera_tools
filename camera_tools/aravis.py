@@ -215,7 +215,6 @@ class AravisCamera(Camera):
     def __del__(self) -> None:
 
         if self.cam is not None:
-            self.cam.stop_acquisition()
             del self.cam
         self.stream = None
         self.cam = None
