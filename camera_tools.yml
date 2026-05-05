@@ -9,9 +9,21 @@ dependencies:
 - pyqt
 - numpy 
 - opencv
+- gobject-introspection  # The GI bridge
+- pygobject             # The Python bindings for GI
+- meson                 # The build system
+- ninja                 # The compiler runner
+- libxml2               # Aravis dependency
+- libxml2-devel
+- glib                  # Aravis dependency
+- zlib
+- libusb                # For USB3 support
+- pkg-config            # To find dependencies
+
 - pip: 
   - harvesters
   - pupil-labs-uvc
   - v4l2py
   - git+https://github.com/ElTinmar/qt_widgets.git@main
   - git+https://github.com/ElTinmar/video_tools.git@main
+  
