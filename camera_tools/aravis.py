@@ -212,10 +212,5 @@ class AravisCamera(Camera):
     def get_num_channels(self) -> int:
         return 1
     
-    def __del__(self) -> None:
 
-        if self.cam is not None:
-            del self.cam
-        self.stream = None
-        self.cam = None
         
