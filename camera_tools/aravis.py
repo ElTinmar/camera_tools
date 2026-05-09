@@ -77,7 +77,7 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
 
     def get_framerate_increment(self) -> Optional[float]:
-        return self.cam.get_frame_rate_increment()
+        return 0.01
 
     def gain_available(self) -> bool:
         return self.cam.is_gain_available()
