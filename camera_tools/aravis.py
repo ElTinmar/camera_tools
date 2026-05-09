@@ -61,7 +61,12 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
 
     def get_exposure_increment(self) -> Optional[float]:
-        return self.cam.get_exposure_time_increment()
+        try:
+            inc = self.cam.get_gain_increment()
+        except Exception as e:
+            print(f"Could not get increment: {e}")
+            inc = 1.0
+        return inc
 
     def framerate_available(self) -> bool:
         return self.cam.is_frame_rate_available()
@@ -77,7 +82,12 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
 
     def get_framerate_increment(self) -> Optional[float]:
-        return 0.01
+        try:
+            inc = self.cam.get_frame_rate_increment()
+        except Exception as e:
+            print(f"Could not get increment: {e}")
+            inc = 1.0
+        return inc
 
     def gain_available(self) -> bool:
         return self.cam.is_gain_available()
@@ -93,7 +103,12 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
 
     def get_gain_increment(self) -> Optional[float]:
-        return self.cam.get_gain_increment()
+        try:
+            inc = self.cam.get_gain_increment()
+        except Exception as e:
+            print(f"Could not get increment: {e}")
+            inc = 1.0
+        return inc
 
     def ROI_available(self) -> bool:
         return self.cam.is_region_offset_available()
@@ -123,7 +138,12 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
 
     def get_offsetX_increment(self) -> Optional[int]:
-        return self.cam.get_x_offset_increment()
+        try:
+            inc = self.cam.get_x_offset_increment()
+        except Exception as e:
+            print(f"Could not get increment: {e}")
+            inc = 1
+        return inc
 
     def set_offsetY(self, offsetY: int) -> None:
         region = self.cam.get_region()
@@ -142,7 +162,12 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
 
     def get_offsetY_increment(self) -> Optional[int]:
-        return self.cam.get_y_offset_increment()
+        try:
+            inc = self.cam.get_y_offset_increment()
+        except Exception as e:
+            print(f"Could not get increment: {e}")
+            inc = 1
+        return inc
 
     def width_available(self) -> bool:
         return self.cam.is_region_offset_available()
@@ -161,7 +186,12 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
 
     def get_width_increment(self) -> Optional[int]:
-        return self.cam.get_width_increment()
+        try:
+            inc = self.cam.get_width_increment()
+        except Exception as e:
+            print(f"Could not get increment: {e}")
+            inc = 1
+        return inc
 
     def height_available(self) -> bool:
         return self.cam.is_region_offset_available()
@@ -180,7 +210,12 @@ class AravisCamera(Camera):
         return (bounds.min, bounds.max)
     
     def get_height_increment(self) -> Optional[int]:
-        return self.cam.get_height_increment()
+        try:
+            inc = self.cam.get_height_increment()
+        except Exception as e:
+            print(f"Could not get increment: {e}")
+            inc = 1
+        return inc
 
     def get_frame(self) -> NDArray:
 
