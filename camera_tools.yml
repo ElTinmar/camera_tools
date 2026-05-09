@@ -9,16 +9,15 @@ dependencies:
 - pyqt
 - numpy 
 - opencv
-- gobject-introspection  # The GI bridge
-- pygobject             # The Python bindings for GI
-- meson                 # The build system
-- ninja                 # The compiler runner
-- libxml2               # Aravis dependency
+- gobject-introspection
+- pygobject
+- meson
+- ninja
 - libxml2-devel
-- glib                  # Aravis dependency
+- glib 
 - zlib
-- libusb                # For USB3 support
-- pkg-config            # To find dependencies
+- libusb
+- pkg-config
 
 - pip: 
   - harvesters

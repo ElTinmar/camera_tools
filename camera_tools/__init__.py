@@ -2,7 +2,7 @@ from .camera import *
 from .camera_widget import *
 from .randomcam import *
 from .zerocam import *
-
+from .aravis import AravisCamera
 
 try:
     from .webcam import *
