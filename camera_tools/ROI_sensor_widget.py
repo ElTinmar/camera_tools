@@ -1,6 +1,6 @@
 from qtpy.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget, 
                             QLabel, QGraphicsRectItem, QGraphicsItem, 
-                            QGraphicsView, QGraphicsScene, QFrame)
+                            QGraphicsView, QGraphicsScene, QFrame, QPushButton)
 from qtpy.QtGui import QColor, QPen, QBrush, QPainter, QPainterPath
 from qtpy.QtCore import Qt, Signal as pyqtSignal, QRectF, QPointF
 
@@ -184,7 +184,7 @@ class ROIGraphicalSelector(QGraphicsView):
     roi_changed = pyqtSignal(int, int, int, int)
     HANDLE_SIZE = 10
 
-    def __init__(self, parent=None, size=600):
+    def __init__(self, parent=None, size=150):
         super().__init__(parent)
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
@@ -255,6 +255,74 @@ class ROIGraphicalSelector(QGraphicsView):
         
         self.roi_changed.emit(real_x, real_y, real_w, real_h)
 
+class CameraSensorROI(QWidget):
+    """
+    Container widget combining the Graphical ROI Selector and a 
+    utility button to center the ROI on the sensor.
+    """
+    roi_changed = pyqtSignal(int, int, int, int)
+
+    def __init__(self, parent=None, selector_size=150):
+        super().__init__(parent)
+        
+        # State tracking for centering math
+        self.last_sensor_w = 2000
+        self.last_sensor_h = 2000
+        self.last_roi_w = 1000
+        self.last_roi_h = 1000
+
+        self.init_ui(selector_size)
+
+    def init_ui(self, selector_size):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addStretch()
+
+        # 1. The Graphical Selector
+        self.selector = ROIGraphicalSelector(size=selector_size)
+        self.selector.roi_changed.connect(self.handle_selector_change)
+        layout.addWidget(self.selector, alignment=Qt.AlignCenter)
+
+        # 2. The Auto-Center Button
+        self.center_button = QPushButton("Center ROI")
+        self.center_button.setToolTip("Move the ROI to the center of the sensor")
+        self.center_button.clicked.connect(self.center_roi)
+        layout.addWidget(self.center_button)
+        layout.addStretch()
+
+    def handle_selector_change(self, x, y, w, h):
+        """Pass the signal up and cache values for centering math."""
+        self.last_roi_w, self.last_roi_h = w, h
+        self.roi_changed.emit(x, y, w, h)
+
+    def update_roi_map(self, sensor_w, sensor_h, roi_w, roi_h, off_x, off_y):
+        """Standard passthrough to update the visual map."""
+        self.last_sensor_w = sensor_w
+        self.last_sensor_h = sensor_h
+        self.last_roi_w = roi_w
+        self.last_roi_h = roi_h
+        
+        self.selector.update_roi_map(sensor_w, sensor_h, roi_w, roi_h, off_x, off_y)
+
+    def center_roi(self):
+        """Calculates center offsets and emits the change."""
+        # Calculate offsets to center the current ROI width/height on the sensor
+        new_x = max(0, (self.last_sensor_w - self.last_roi_w) // 2)
+        new_y = max(0, (self.last_sensor_h - self.last_roi_h) // 2)
+        
+        # We emit the signal so the CameraWidget/Backend knows to update
+        self.roi_changed.emit(new_x, new_y, self.last_roi_w, self.last_roi_h)
+        
+        # Update visual representation immediately
+        self.selector.update_roi_map(
+            self.last_sensor_w, 
+            self.last_sensor_h, 
+            self.last_roi_w, 
+            self.last_roi_h, 
+            new_x, 
+            new_y
+        )
+
 if __name__ == "__main__":
     import sys
 
@@ -262,13 +330,13 @@ if __name__ == "__main__":
     win = QMainWindow()
     win.setWindowTitle("Polished Camera ROI Control")
     cw = QWidget(); win.setCentralWidget(cw); layout = QVBoxLayout(cw)
-    selector = ROIGraphicalSelector(); layout.addWidget(selector)
+    selector = CameraSensorROI(selector_size=600); layout.addWidget(selector)
     label = QLabel("OFFSET: 0, 0 | SIZE: 0x0"); label.setAlignment(Qt.AlignCenter); layout.addWidget(label)
     
     selector.roi_changed.connect(lambda x,y,w,h: label.setText(f"OFFSET: {x}, {y} | SIZE: {w}x{h}"))
     
     # Initial setup: 2MP sensor, 800x600 ROI
-    selector.update_roi_map(1920, 1080, 800, 800, 100, 100)
+    selector.update_roi_map(2048, 2048, 800, 800, 100, 100)
     
     win.show()
     sys.exit(app.exec_())

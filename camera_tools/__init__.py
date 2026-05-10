@@ -2,7 +2,7 @@ from .camera import *
 from .randomcam import *
 from .zerocam import *
 from .aravis import AravisCamera
-from .ROI_sensor_widget import ROIGraphicalSelector
+from .ROI_sensor_widget import CameraSensorROI
 
 try:
     from .webcam import *
