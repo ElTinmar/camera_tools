@@ -2,27 +2,25 @@ name: camera_tools
 channels:
 - conda-forge
 dependencies:
-- python >= 3.8
-- ffmpeg
+- python >= 3.8, < 3.14
 - ipython
 - pip
-- pyqt
+- qtpy
 - numpy 
-- opencv
+
 - gobject-introspection
 - pygobject
 - meson
 - ninja
-- libxml2-devel
+- libxml2
 - glib 
 - zlib
 - libusb
 - pkg-config
 
 - pip: 
-  - harvesters
   - pupil-labs-uvc
   - v4l2py
-  - git+https://github.com/ElTinmar/qt_widgets.git@main
+  - qt_widgets[pyqt6] @ git+https://github.com/ElTinmar/qt_widgets.git@main
   - git+https://github.com/ElTinmar/video_tools.git@main
   

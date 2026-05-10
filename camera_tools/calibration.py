@@ -5,7 +5,7 @@ import cv2
 from numpy.linalg import lstsq
 import numpy as np
 from qt_widgets import imshow, waitKey, destroyAllWindows, destroyWindow
-from PyQt5.QtCore import Qt
+from qtpy.QtCore import Qt
 
 def get_camera_distortion(
         cam: Camera, 
