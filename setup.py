@@ -12,6 +12,7 @@ setup(
     install_requires=[
         "numpy", 
         "qtpy",
+        "PyQt5",
         "opencv-python-headless",
         "v4l2py",
         "video_tools @ git+https://github.com/ElTinmar/video_tools.git@main",
