@@ -14,7 +14,7 @@ setup(
         "qtpy",
         "opencv-python-headless",
         "v4l2py",
-        "video_tools @ git+https://github.com/ElTinmar/video_tools.git@main",
-        "qt_widgets @  git+https://github.com/ElTinmar/qt_widgets.git@main"
+        "git+https://github.com/ElTinmar/video_tools.git@v0.6.4",
+        "git+https://github.com/ElTinmar/qt_widgets.git@0.5.0"
     ]
 )
