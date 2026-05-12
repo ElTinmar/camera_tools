@@ -11,7 +11,17 @@ class AravisCamera(Camera):
 
     @staticmethod
     def list_available_cameras() -> List:
-        ...
+        Aravis.update_device_list()
+        
+        found_devices = []
+        for i in range(Aravis.get_n_devices()):
+            found_devices.append({
+                "id": Aravis.get_device_id(i),
+                "vendor": Aravis.get_device_vendor(i),
+                "model": Aravis.get_device_model(i),
+                "address": Aravis.get_device_address(i) # Useful for GigE debugging
+            })
+        return found_devices
     
     def __init__(self, dev_id: Optional[str] = None, *args, **kwargs):
 
@@ -22,6 +32,7 @@ class AravisCamera(Camera):
         self.first_num = 0
         self.first_timestamp = 0
         self.num_buffers = 5
+        self.acquisition_started = False
         
         # open camera
         self.cam = Aravis.Camera.new(dev_id)
@@ -46,10 +57,14 @@ class AravisCamera(Camera):
             self.stream.push_buffer(Aravis.Buffer.new_allocate(payload))
 
     def start_acquisition(self) -> None:
-        self.cam.start_acquisition()
+        if not self.acquisition_started:
+            self.cam.start_acquisition()
+            self.acquisition_started = True
     
     def stop_acquisition(self) -> None:
-        self.cam.stop_acquisition()
+        if self.acquisition_started:
+            self.cam.stop_acquisition()
+            self.acquisition_started = False
 
     def exposure_available(self) -> bool:
         return self.cam.is_exposure_time_available()
@@ -252,11 +267,10 @@ class AravisCamera(Camera):
         return 1
     
     def close(self) -> None:
-        if self.cam:
+        if self.cam is not None and self.acquisition_started:
             self.stop_acquisition()
-            self.stream.shutdown()
-            self.stream = None
-            self.cam = None
+        self.stream = None
+        self.cam = None
 
     def __del__(self) -> None:
         try:
