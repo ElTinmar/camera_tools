@@ -1,6 +1,6 @@
 from camera_tools.camera import Camera
 from typing import Optional, Tuple, List
-from ximea import xiapi
+from ximea import 
 from numpy.typing import NDArray
 import numpy as np
 
@@ -8,7 +8,12 @@ class XimeaCamera(Camera):
 
     @staticmethod
     def list_available_cameras() -> List:
-        ...
+        n_cam = xiapi.Camera().get_number_devices()
+        cameras = []
+        for i in range(n_cam):
+            cam = xiapi.Camera(i)
+            cameras.append(cam.get_device_name())
+        return cameras
 
     def __init__(self, dev_id: int = 0, *args, **kwargs):
 

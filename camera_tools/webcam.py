@@ -46,8 +46,15 @@ class OpenCV_Webcam(Camera):
     }
 
     @staticmethod
-    def list_available_cameras() -> List:
-        ...
+    def list_available_cameras(N: int = 5) -> List:
+        backend = cv2.CAP_DSHOW if sys.platform.startswith("win") else cv2.CAP_ANY 
+        indices = []
+        for i in range(N):
+            cap = cv2.VideoCapture(i, backend) 
+            if cap.read()[0]:
+                indices.append(i)
+                cap.release()
+        return indices
 
     def __init__(
             self, 

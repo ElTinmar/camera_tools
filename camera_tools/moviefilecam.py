@@ -7,6 +7,23 @@ import cv2
 from typing import Optional, Tuple, List
 import os 
 import errno
+from pathlib import Path
+
+def list_videos(
+    search_path: str = ".", 
+    extensions: Optional[List[str]] = None
+) -> List[str]:
+    
+    if extensions is None:
+        extensions = ['.mp4', '.avi']
+    
+    exts = {e.lower() for e in extensions}
+    path_obj = Path(search_path)
+    
+    return [
+        str(p) for p in path_obj.iterdir() 
+        if p.suffix.lower() in exts
+    ]
 
 class MovieFileCam(Camera):
     """
@@ -14,8 +31,8 @@ class MovieFileCam(Camera):
     """
 
     @staticmethod
-    def list_available_cameras() -> List:
-        ...
+    def list_available_cameras(search_path: str = ".", extensions: Optional[List[str]] = None) -> List[str]:
+        return list_videos(search_path, extensions)
 
     def __init__(self, filename: str, fps:int = 60, safe: bool = False, *args, **kwargs):
 
@@ -217,8 +234,8 @@ class BufferedMovieFileCam(Camera):
     """
 
     @staticmethod
-    def list_available_cameras() -> List:
-        ...
+    def list_available_cameras(search_path: str = ".", extensions: Optional[List[str]] = None) -> List[str]:
+        return list_videos(search_path, extensions)
 
     def __init__(
             self, 

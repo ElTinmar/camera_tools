@@ -17,12 +17,7 @@ class AravisCamera(Camera):
         
         found_devices = []
         for i in range(Aravis.get_n_devices()):
-            found_devices.append({
-                "id": Aravis.get_device_id(i),
-                "vendor": Aravis.get_device_vendor(i),
-                "model": Aravis.get_device_model(i),
-                "address": Aravis.get_device_address(i) # Useful for GigE debugging
-            })
+            found_devices.append(Aravis.get_device_id(i))
         return found_devices
     
     def __init__(self, dev_id: Optional[str] = None, *args, **kwargs):

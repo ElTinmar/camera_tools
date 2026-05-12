@@ -11,7 +11,7 @@ class ZeroCam(Camera):
 
     @staticmethod
     def list_available_cameras() -> List:
-        ...
+        return [((2048, 2048), np.uint8)]
 
     def __init__(self, shape: ArrayLike, dtype: np.dtype, framerate: float = 30, *args, **kwargs):
 

@@ -9,7 +9,7 @@ class Camera(ABC):
 
     @staticmethod
     @abstractmethod
-    def list_available_cameras() -> List:
+    def list_available_cameras(*args, **kwargs) -> List:
         pass
 
     @abstractmethod
