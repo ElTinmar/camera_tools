@@ -7,6 +7,8 @@ import gi
 gi.require_version ('Aravis', '0.10')
 from gi.repository import Aravis
 
+# TODO: might need to enforce gain/exposure/framerate increment
+
 class AravisCamera(Camera):
 
     @staticmethod
@@ -33,6 +35,7 @@ class AravisCamera(Camera):
         self.first_timestamp = 0
         self.num_buffers = 5
         self.acquisition_started = False
+        self.stream = None
         
         # open camera
         self.cam = Aravis.Camera.new(dev_id)
@@ -46,13 +49,16 @@ class AravisCamera(Camera):
         self.cam.set_pixel_format(Aravis.PIXEL_FORMAT_MONO_8)
         self.cam.set_binning(dx=1, dy=1)    
 
-        self.stream = self.cam.create_stream(None, None)
         self.reallocate_buffers() 
 
     def reallocate_buffers(self) -> None:
-        # TODO maybe I can allocate once in __init__ with sensor size
         payload = self.cam.get_payload()
-        self.stream.delete_buffers()
+        
+        if self.stream is not None:
+            self.stream.delete_buffers()
+            self.stream = None
+
+        self.stream = self.cam.create_stream(None, None)
         for i in range(self.num_buffers):
             self.stream.push_buffer(Aravis.Buffer.new_allocate(payload))
 
@@ -66,6 +72,11 @@ class AravisCamera(Camera):
             self.cam.stop_acquisition()
             self.acquisition_started = False
 
+    def _align_value(self, value: int, increment: int) -> int:
+        if increment <= 1:
+            return value
+        return (value // increment) * increment
+    
     def exposure_available(self) -> bool:
         return self.cam.is_exposure_time_available()
 
@@ -132,8 +143,20 @@ class AravisCamera(Camera):
     def ROI_available(self) -> bool:
         return self.cam.is_region_offset_available()
     
-    def set_ROI(self, left: int, bottom: int, height: int, width: int) -> None:
-        self.cam.set_region(x=left, y=bottom, width=width, height=height)
+    def set_ROI(self, left: int, bottom: int, width: int, height: int) -> None:
+        inc_x = self.get_offsetX_increment()
+        inc_y = self.get_offsetY_increment()
+        inc_w = self.get_width_increment()
+        inc_h = self.get_height_increment()
+
+        a_left = self._align_value(left, inc_x)
+        a_bottom = self._align_value(bottom, inc_y)
+        a_width = self._align_value(width, inc_w)
+        a_height = self._align_value(height, inc_h)
+
+        self.cam.set_region(0, 0, a_width, a_height)
+        self.cam.set_region(a_left, a_bottom, a_width, a_height)
+        
         self.reallocate_buffers()
 
     def get_ROI(self) -> Optional[Tuple[int,int,int,int]]:
@@ -141,9 +164,8 @@ class AravisCamera(Camera):
         return (region.x, region.y, region.height, region.width)
 
     def set_offsetX(self, offsetX: int) -> None:
-        region = self.cam.get_region()
-        self.cam.set_region(x=offsetX, y=region.y, width=region.width, height=region.height)
-        self.reallocate_buffers()
+        r = self.cam.get_region()
+        self.set_ROI(offsetX, r.y, r.width, r.height)
 
     def offsetX_available(self) -> bool:
         return self.cam.is_region_offset_available()
@@ -165,9 +187,8 @@ class AravisCamera(Camera):
         return inc
 
     def set_offsetY(self, offsetY: int) -> None:
-        region = self.cam.get_region()
-        self.cam.set_region(x=region.x, y=offsetY, width=region.width, height=region.height)
-        self.reallocate_buffers()
+        r = self.cam.get_region()
+        self.set_ROI(r.x, offsetY, r.width, r.height)
 
     def offsetY_available(self) -> bool:
         return self.cam.is_region_offset_available()
@@ -192,9 +213,8 @@ class AravisCamera(Camera):
         return self.cam.is_region_offset_available()
     
     def set_width(self, width: int) -> None:
-        region = self.cam.get_region()
-        self.cam.set_region(x=region.x, y=region.y, width=width, height=region.height)
-        self.reallocate_buffers()
+        r = self.cam.get_region()
+        self.set_ROI(r.x, r.y, width, r.height)
 
     def get_width(self) -> Optional[int]:
         region = self.cam.get_region()
@@ -216,9 +236,8 @@ class AravisCamera(Camera):
         return self.cam.is_region_offset_available()
     
     def set_height(self, height: int) -> None:
-        region = self.cam.get_region()
-        self.cam.set_region(x=region.x, y=region.y, width=region.width, height=height)
-        self.reallocate_buffers()
+        r = self.cam.get_region()
+        self.set_ROI(r.x, r.y, r.width, height)
         
     def get_height(self) -> Optional[int]:
         region = self.cam.get_region()
