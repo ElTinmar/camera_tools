@@ -5,7 +5,7 @@ import time
 import numpy as np
 from numpy.typing import NDArray
 from camera_tools.camera import Camera
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 '''
 INFO Useful properties to probe
@@ -32,6 +32,10 @@ class V4L2_Webcam(Camera):
     '''
     Available on linux only, uses a v4l2 python wrapper 
     '''
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(self, cam_id: int = 0, *args, **kwargs) -> None:
         
@@ -186,3 +190,6 @@ class V4L2_Webcam(Camera):
 
     def get_num_channels(self):
         return 3
+    
+    def close(self) -> None:
+        ...

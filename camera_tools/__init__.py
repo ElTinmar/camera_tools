@@ -14,6 +14,8 @@ try:
     from .aravis import AravisCamera
 except ModuleNotFoundError:
     logger.info('AravisCamera not available')
+except ValueError as e:
+    logger.info('AravisCamera not available: {e}')
 except OSError as e:
     logger.info(f'OSError: {e}. Issue with AravisCamera, try reinstalling aravis')
 

@@ -1,5 +1,5 @@
 from camera_tools.camera import Camera
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from numpy.typing import NDArray
 import numpy as np
 
@@ -9,6 +9,10 @@ from gi.repository import Aravis
 
 class AravisCamera(Camera):
 
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
+    
     def __init__(self, dev_id: Optional[str] = None, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -247,5 +251,16 @@ class AravisCamera(Camera):
     def get_num_channels(self) -> int:
         return 1
     
+    def close(self) -> None:
+        if self.cam:
+            self.stop_acquisition()
+            self.stream.shutdown()
+            self.stream = None
+            self.cam = None
 
-        
+    def __del__(self) -> None:
+        try:
+            self.close()
+        finally:
+            self.stream = None
+            self.cam = None

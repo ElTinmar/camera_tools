@@ -2,12 +2,16 @@ from camera_tools.camera import Camera
 import time
 import numpy as np
 from numpy.typing import NDArray, ArrayLike
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 class ZeroCam(Camera):
     """
     Provides an empty image. This is just for testing
     """
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(self, shape: ArrayLike, dtype: np.dtype, framerate: float = 30, *args, **kwargs):
 
@@ -162,3 +166,6 @@ class ZeroCam(Camera):
         else:
             num_channels = 1
         return num_channels
+    
+    def close(self) -> None:
+        ...

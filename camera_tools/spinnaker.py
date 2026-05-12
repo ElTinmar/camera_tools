@@ -1,10 +1,14 @@
 from camera_tools.camera import Camera
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 import PySpin
 from numpy.typing import NDArray
 import numpy as np
 
 class SpinnakerCamera(Camera):
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(self, dev_id: int = 0, *args, **kwargs):
 
@@ -228,12 +232,19 @@ class SpinnakerCamera(Camera):
     def get_num_channels(self) -> int:
         # TODO  imgdataformat = cam.get_imgdataformat()
         return 1
-    
-    def __del__(self) -> None:
+
+    def close(self) -> None:
 
         self.cam.DeInit()
         del self.cam
         self.cam = None
         self.cam_list.Clear()
         self.system.ReleaseInstance()
+
+    def __del__(self) -> None:
+        try:
+            self.close()
+        finally:
+            self.cam = None
+
         

@@ -4,7 +4,7 @@ import time
 import numpy as np
 from numpy.typing import NDArray
 import cv2
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 import os 
 import errno
 
@@ -12,6 +12,10 @@ class MovieFileCam(Camera):
     """
     Reads video from file
     """
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(self, filename: str, fps:int = 60, safe: bool = False, *args, **kwargs):
 
@@ -201,6 +205,8 @@ class MovieFileCam(Camera):
     def get_num_channels(self) -> Optional[int]:
         return self.num_channels
 
+    def close(self) -> None:
+        ...
 
 
 class BufferedMovieFileCam(Camera):
@@ -209,6 +215,10 @@ class BufferedMovieFileCam(Camera):
     working on frames without being limitied by the speed of reading 
     from disk
     """
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(
             self, 
@@ -392,6 +402,9 @@ class BufferedMovieFileCam(Camera):
     def set_num_channels(self, num_channels: int) -> None:
         pass
 
+    def close(self) -> None:
+        ...
+        
 class MovieFileCamGray(MovieFileCam):
 
     def start_acquisition(self) -> None:

@@ -1,10 +1,14 @@
 from camera_tools.camera import Camera
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from ximea import xiapi
 from numpy.typing import NDArray
 import numpy as np
 
 class XimeaCamera(Camera):
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(self, dev_id: int = 0, *args, **kwargs):
 
@@ -261,10 +265,17 @@ class XimeaCamera(Camera):
     def get_num_channels(self):
         # TODO  imgdataformat = cam.get_imgdataformat()
         return 1
-    
-    def __del__(self):
+
+    def close(self):
         if self.xi_cam is not None:
             self.xi_cam.close_device()
+        self.xi_cam = None
+
+    def __del__(self):
+        try:
+            self.close()
+        finally:
+            self.xi_cam = None
 
 
 class numpy_holder(object):

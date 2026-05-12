@@ -3,9 +3,13 @@ from uvc.uvc_bindings import CameraMode
 import numpy as np
 from numpy.typing import NDArray
 from camera_tools.camera import Camera
-from typing import Optional, Tuple, Dict
+from typing import Optional, Tuple, Dict, List
 
 class PyUVC_Webcam(Camera):
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(self, cam_index: int = 0, safe: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -210,3 +214,6 @@ class PyUVC_Webcam(Camera):
 
     def get_gain_increment(self) -> Optional[float]:
         return 1.0
+
+    def close(self) -> None:
+        ...

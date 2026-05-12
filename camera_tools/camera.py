@@ -1,11 +1,26 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from numpy.typing import NDArray
 
 # TODO add methods for binning / decimation
 # __init__ and __del__ acquire and release camera lock respectively
  
 class Camera(ABC):
+
+    @staticmethod
+    @abstractmethod
+    def list_available_cameras() -> List:
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     @abstractmethod
     def start_acquisition(self):

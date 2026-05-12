@@ -2,7 +2,7 @@ import cv2
 import time
 from numpy.typing import NDArray
 from camera_tools.camera import Camera
-from typing import Optional, Tuple, Dict
+from typing import Optional, Tuple, Dict, List
 import numpy as np
 from image_tools import im2gray
 import sys
@@ -44,6 +44,10 @@ class OpenCV_Webcam(Camera):
         #cv2.VideoWriter_fourcc(*"I420"): "I420",  
         cv2.VideoWriter_fourcc(*"MJPG"): "MJPG",  # Motion JPEG
     }
+
+    @staticmethod
+    def list_available_cameras() -> List:
+        ...
 
     def __init__(
             self, 
@@ -327,10 +331,16 @@ class OpenCV_Webcam(Camera):
     
     def get_num_channels(self) -> int:
         return 3
-    
-    def __del__(self):
+
+    def close(self) -> None:
         if self.camera is not None:
             self.camera.release()
+
+    def __del__(self):
+        try:
+            self.close()
+        finally:
+            ...
 
 
 # video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0) before every video_capture.read() ?
