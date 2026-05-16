@@ -1,6 +1,6 @@
 from camera_tools.camera import Camera, CameraInfo
 from typing import Optional, Tuple, List
-from ximea import 
+from ximea import xiapi
 from numpy.typing import NDArray
 import numpy as np
 
