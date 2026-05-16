@@ -4,7 +4,7 @@ from v4l2py.device import Device, BufferType
 import time
 import numpy as np
 from numpy.typing import NDArray
-from camera_tools.camera import Camera
+from camera_tools.camera import Camera, CameraInfo
 from typing import Optional, Tuple, List
 
 '''
@@ -33,8 +33,8 @@ class V4L2_Webcam(Camera):
     Available on linux only, uses a v4l2 python wrapper 
     '''
 
-    @staticmethod
-    def list_available_cameras() -> List:
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
         ...
 
     def __init__(self, cam_id: int = 0, *args, **kwargs) -> None:

@@ -1,15 +1,23 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Any, Dict, Type
 from numpy.typing import NDArray
+from dataclasses import dataclass, field
 
-# TODO add methods for binning / decimation
-# __init__ and __del__ acquire and release camera lock respectively
+@dataclass
+class CameraInfo:
+    name: str            
+    camera_cls: Type['Camera'] 
+    args: Tuple[Any, ...] = field(default_factory=tuple) 
+    kwargs: Dict[str, Any] = field(default_factory=dict) 
+
+    def instantiate(self) -> 'Camera':
+        return self.camera_cls(*self.args, **self.kwargs)    
  
 class Camera(ABC):
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def list_available_cameras(*args, **kwargs) -> List:
+    def list_available_cameras(cls, *args, **kwargs) -> List[CameraInfo]:
         pass
 
     @abstractmethod

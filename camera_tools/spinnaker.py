@@ -1,4 +1,4 @@
-from camera_tools.camera import Camera
+from camera_tools.camera import Camera, CameraInfo
 from typing import Optional, Tuple, List
 import PySpin
 from numpy.typing import NDArray
@@ -6,8 +6,8 @@ import numpy as np
 
 class SpinnakerCamera(Camera):
 
-    @staticmethod
-    def list_available_cameras() -> List:
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
         ...
 
     def __init__(self, dev_id: int = 0, *args, **kwargs):

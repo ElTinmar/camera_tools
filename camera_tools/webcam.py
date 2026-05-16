@@ -1,7 +1,8 @@
+
+from camera_tools.camera import Camera, CameraInfo
 import cv2 
 import time
 from numpy.typing import NDArray
-from camera_tools.camera import Camera
 from typing import Optional, Tuple, Dict, List
 import numpy as np
 from image_tools import im2gray
@@ -20,6 +21,8 @@ import sys
 # TODO handle format selection in the __init__
 
 class OpenCV_Webcam(Camera):
+
+    SAFE_MODE: bool = False
 
     COMMON_RESOLUTIONS = [
         (320, 240),    # QVGA
@@ -45,21 +48,28 @@ class OpenCV_Webcam(Camera):
         cv2.VideoWriter_fourcc(*"MJPG"): "MJPG",  # Motion JPEG
     }
 
-    @staticmethod
-    def list_available_cameras(N: int = 5) -> List:
+    @classmethod
+    def list_available_cameras(cls, N=5) -> List[CameraInfo]:
+        # TODO cv2-enumerate-cameras
         backend = cv2.CAP_DSHOW if sys.platform.startswith("win") else cv2.CAP_ANY 
-        indices = []
+        cam_info = []
         for i in range(N):
             cap = cv2.VideoCapture(i, backend) 
             if cap.read()[0]:
-                indices.append(i)
+                cam_info.append(
+                    CameraInfo(
+                        name=f"Webcam {i}",
+                        camera_cls=cls,
+                        args=(),
+                        kwargs={"cam_id": i}
+                    )
+                )
                 cap.release()
-        return indices
+        return cam_info
 
     def __init__(
             self, 
             cam_id: int = 0, 
-            safe: bool = False,
             *args, 
             **kwargs
         ) -> None:
@@ -68,7 +78,6 @@ class OpenCV_Webcam(Camera):
 
         self.backend = cv2.CAP_DSHOW if sys.platform.startswith("win") else cv2.CAP_ANY 
         self.camera_id = cam_id
-        self.safe = safe
         self.camera = cv2.VideoCapture(self.camera_id, self.backend) 
         self.index = 0
         self.time_start = time.perf_counter()
@@ -169,7 +178,7 @@ class OpenCV_Webcam(Camera):
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img[:,:,::-1] # bgr to rgb
         
-        if self.safe:
+        if self.SAFE_MODE:
             output = self.frame.copy()
         else:
             output = self.frame
@@ -369,7 +378,7 @@ class OpenCV_Webcam_InitEveryFrame(OpenCV_Webcam):
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img[:,:,::-1] # bgr to rgb
         
-        if self.safe:
+        if self.SAFE_MODE:
             output = self.frame.copy()
         else:
             output = self.frame
@@ -409,7 +418,7 @@ class OpenCV_Webcam_Gray(OpenCV_Webcam):
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img_gray
 
-        if self.safe:
+        if self.SAFE_MODE:
             output = self.frame.copy()
         else:
             output = self.frame

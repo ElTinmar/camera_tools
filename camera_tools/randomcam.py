@@ -1,17 +1,27 @@
-from camera_tools.camera import Camera
+from camera_tools.camera import Camera, CameraInfo
 import time
 import numpy as np
 from numpy.typing import NDArray, ArrayLike
 from typing import Optional, Tuple, List
 
 class RandomCam(Camera):
-    """
-    Provides a random image. This is just for testing
-    """
 
-    @staticmethod
-    def list_available_cameras() -> List:
-        return [((2048, 2048), np.uint8)]
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
+        return [
+            CameraInfo(
+                name="RANDOM_2048x2048_uint8",
+                camera_cls=cls,
+                args=(),
+                kwargs={"shape": (2048,2048), "dtype": np.uint8}
+            ),
+            CameraInfo(
+                name="RANDOM_2048x2048x3_uint8",
+                camera_cls=cls,
+                args=(),
+                kwargs={"shape": (2048,2048,3), "dtype": np.uint8}
+            )
+        ]
 
     def __init__(self, shape: ArrayLike, dtype: np.dtype, *args, **kwargs):
 

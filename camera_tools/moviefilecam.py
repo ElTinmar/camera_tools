@@ -1,4 +1,4 @@
-from camera_tools.camera import Camera
+from camera_tools.camera import Camera, CameraInfo
 from video_tools import InMemory_OpenCV_VideoReader, get_video_info
 import time
 import numpy as np
@@ -11,11 +11,8 @@ from pathlib import Path
 
 def list_videos(
     search_path: str = ".", 
-    extensions: Optional[List[str]] = None
+    extensions: List[str] = ['.mp4', '.avi']
 ) -> List[str]:
-    
-    if extensions is None:
-        extensions = ['.mp4', '.avi']
     
     exts = {e.lower() for e in extensions}
     path_obj = Path(search_path)
@@ -30,11 +27,24 @@ class MovieFileCam(Camera):
     Reads video from file
     """
 
-    @staticmethod
-    def list_available_cameras(search_path: str = ".", extensions: Optional[List[str]] = None) -> List[str]:
-        return list_videos(search_path, extensions)
+    DEFAULT_FPS: float = 60
+    SAFE_MODE: bool = False
 
-    def __init__(self, filename: str, fps:int = 60, safe: bool = False, *args, **kwargs):
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
+        video_files = list_videos()
+        cam_info = []
+        for file in video_files:
+            cam = CameraInfo(
+                name=file,
+                camera_cls=cls,
+                args=(),
+                kwargs={"filename": file}
+            )
+            cam_info.append(cam)
+        return cam_info
+
+    def __init__(self, filename: str, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
@@ -43,12 +53,11 @@ class MovieFileCam(Camera):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
         self.filename = filename
         self.reader = None
-        self.fps = fps
+        self.fps = self.DEFAULT_FPS
         self.width = None
         self.height = None
         self.video_fps = None
         self.prev_time = 0
-        self.safe = safe
         self.num_channels = 3 
 
     def start_acquisition(self) -> None:
@@ -82,7 +91,7 @@ class MovieFileCam(Camera):
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img
 
-        if self.safe:
+        if self.SAFE_MODE:
             output = self.frame.copy()
         else:
             output = self.frame
@@ -233,15 +242,26 @@ class BufferedMovieFileCam(Camera):
     from disk
     """
 
-    @staticmethod
-    def list_available_cameras(search_path: str = ".", extensions: Optional[List[str]] = None) -> List[str]:
-        return list_videos(search_path, extensions)
+    SAFE_MODE = False
+
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
+        video_files = list_videos()
+        cam_info = []
+        for file in video_files:
+            cam = CameraInfo(
+                name=file,
+                camera_cls=cls,
+                args=(),
+                kwargs={"filename": file}
+            )
+            cam_info.append(cam)
+        return cam_info
 
     def __init__(
             self, 
             filename: str, 
             memsize_bytes: int = 4e9, 
-            safe: bool = False,
             single_precision: bool = False, 
             grayscale: bool = False,
             *args, **kwargs):
@@ -260,7 +280,6 @@ class BufferedMovieFileCam(Camera):
 
         self.filename = filename
         self.memsize_bytes = memsize_bytes
-        self.safe = safe
         self.single_precision = single_precision
         self.grayscale = grayscale 
         self.reader = InMemory_OpenCV_VideoReader()
@@ -269,7 +288,7 @@ class BufferedMovieFileCam(Camera):
         self.reader.open_file(
             filename = self.filename, 
             memsize_bytes = self.memsize_bytes, 
-            safe = self.safe, 
+            safe = self.SAFE_MODE, 
             single_precision = self.single_precision, # WEIRD pre-converting to SP makes the loop slower ???
             grayscale = self.grayscale
         )
@@ -452,7 +471,7 @@ class MovieFileCamGray(MovieFileCam):
         self.frame['timestamp'] = timestamp
         self.frame['image'] = img[...,0]
 
-        if self.safe:
+        if self.SAFE_MODE:
             output = self.frame.copy()
         else:
             output = self.frame

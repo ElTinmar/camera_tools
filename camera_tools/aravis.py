@@ -1,4 +1,4 @@
-from camera_tools.camera import Camera
+from camera_tools.camera import Camera, CameraInfo
 from typing import Optional, Tuple, List
 from numpy.typing import NDArray
 import numpy as np
@@ -11,14 +11,21 @@ from gi.repository import Aravis
 
 class AravisCamera(Camera):
 
-    @staticmethod
-    def list_available_cameras() -> List:
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
         Aravis.update_device_list()
         
-        found_devices = []
+        cam_info = []
         for i in range(Aravis.get_n_devices()):
-            found_devices.append(Aravis.get_device_id(i))
-        return found_devices
+            dev_id = Aravis.get_device_id(i)
+            cam = CameraInfo(
+                name=dev_id,
+                camera_cls=cls,
+                args=(),
+                kwargs={"dev_id": dev_id}
+            )
+            cam_info.append(cam)
+        return cam_info
     
     def __init__(self, dev_id: Optional[str] = None, *args, **kwargs):
 

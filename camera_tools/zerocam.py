@@ -1,4 +1,4 @@
-from camera_tools.camera import Camera
+from camera_tools.camera import Camera, CameraInfo
 import time
 import numpy as np
 from numpy.typing import NDArray, ArrayLike
@@ -9,11 +9,26 @@ class ZeroCam(Camera):
     Provides an empty image. This is just for testing
     """
 
-    @staticmethod
-    def list_available_cameras() -> List:
-        return [((2048, 2048), np.uint8)]
+    DEFAULT_FPS: float = 60
 
-    def __init__(self, shape: ArrayLike, dtype: np.dtype, framerate: float = 30, *args, **kwargs):
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
+        return [
+            CameraInfo(
+                name="ZERO_2048x2048_uint8",
+                camera_cls=cls,
+                args=(),
+                kwargs={"shape": (2048,2048), "dtype": np.uint8}
+            ),
+            CameraInfo(
+                name="ZERO_2048x2048x3_uint8",
+                camera_cls=cls,
+                args=(),
+                kwargs={"shape": (2048,2048,3), "dtype": np.uint8}
+            )
+        ]
+
+    def __init__(self, shape: ArrayLike, dtype: np.dtype, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
@@ -21,7 +36,7 @@ class ZeroCam(Camera):
         self.time_start: float = time.perf_counter()
         self.shape = np.asarray(shape) 
         self.dtype = np.dtype(dtype)
-        self.framerate = framerate
+        self.framerate = self.DEFAULT_FPS
 
     def start_acquisition(self) -> None:
         self.index = 0

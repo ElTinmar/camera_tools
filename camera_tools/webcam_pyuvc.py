@@ -2,13 +2,13 @@ import uvc
 from uvc.uvc_bindings import CameraMode
 import numpy as np
 from numpy.typing import NDArray
-from camera_tools.camera import Camera
+from camera_tools.camera import Camera, CameraInfo
 from typing import Optional, Tuple, Dict, List
 
 class PyUVC_Webcam(Camera):
 
-    @staticmethod
-    def list_available_cameras() -> List:
+    @classmethod
+    def list_available_cameras(cls) -> List[CameraInfo]:
         ...
 
     def __init__(self, cam_index: int = 0, safe: bool = False, *args, **kwargs):
