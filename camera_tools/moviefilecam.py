@@ -52,13 +52,16 @@ class MovieFileCam(Camera):
         if not os.path.isfile(filename):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
         self.filename = filename
+
+        info = get_video_info(filename, self.SAFE_MODE)
+        self.height = info["height"]
+        self.width = info["width"]
+        self.num_channels = info["num_channels"]
+
         self.reader = None
         self.fps = self.DEFAULT_FPS
-        self.width = None
-        self.height = None
         self.video_fps = None
         self.prev_time = 0
-        self.num_channels = 3 
 
     def start_acquisition(self) -> None:
         self.reader = cv2.VideoCapture(self.filename)
@@ -199,8 +202,6 @@ class MovieFileCam(Camera):
         pass
 
     def get_width(self) -> Optional[int]:
-        self.start_acquisition()  
-        self.stop_acquisition()
         return self.width
 
     def get_width_range(self) -> Optional[int]:
@@ -217,8 +218,6 @@ class MovieFileCam(Camera):
         pass
     
     def get_height(self) -> Optional[int]:
-        self.start_acquisition()
-        self.stop_acquisition()
         return self.height
     
     def get_height_range(self) -> Optional[int]:
