@@ -215,6 +215,15 @@ class ROIGraphicalSelector(QGraphicsView):
 
     def update_roi_map(self, sensor_w, sensor_h, roi_w, roi_h, off_x, off_y):
 
+        if sensor_w <= 0 or sensor_h <= 0:
+            # Hide the items visually so the user doesn't see a broken 1x1 pixel artifact
+            self.sensor_item.setVisible(False)
+            self.roi_item.setVisible(False)
+            return
+
+        self.sensor_item.setVisible(True)
+        self.roi_item.setVisible(True)
+
         self._is_updating = True
         
         view_padding = self.HANDLE_SIZE + 10
