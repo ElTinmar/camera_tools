@@ -4,7 +4,7 @@ setup(
     name='camera_tools',
     python_requires='>=3.8',
     author='Martin Privat',
-    version='0.8.8',
+    version='0.8.9',
     packages=['camera_tools'],
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
     description='camera tools',
