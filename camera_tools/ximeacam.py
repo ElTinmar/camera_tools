@@ -4,6 +4,17 @@ from ximea import xiapi
 from numpy.typing import NDArray
 import numpy as np
 
+#  CMV4000
+# sensor_freq = 48_000_000
+# FOT = 20
+# output_used = 16
+# nr_lines = 2048
+# clock_cycles = 1+2048/16
+# readout_time = clock_cycles/sensor_freq*16/output_used*nr_lines
+# overhead_time = (FOT+(2*16/output_used))*clock_cycles/sensor_freq
+# exposure_time = 0.0008
+# FPS = 1/(overhead_time + max(readout_time, exposure_time))
+
 class XimeaCamera(Camera):
 
     @classmethod
@@ -108,11 +119,8 @@ class XimeaCamera(Camera):
         return self.xi_cam.get_framerate()
 
     def get_framerate_range(self) -> Optional[Tuple[float,float]]:
-        original_timing_mode = self.xi_cam.get_acq_timing_mode()
-        self.xi_cam.set_acq_timing_mode('XI_ACQ_TIMING_MODE_FREE_RUN')
         framerate_min = self.xi_cam.get_framerate_minimum()
         framerate_max = self.xi_cam.get_framerate_maximum()
-        self.xi_cam.set_acq_timing_mode(original_timing_mode)
         return (framerate_min, framerate_max)
 
     def get_framerate_increment(self) -> Optional[float]:
