@@ -88,6 +88,9 @@ class MovieFileCam(Camera):
         
         self.img_count += 1
         rval, img = self.reader.read()
+        if not rval: 
+            return
+        
         timestamp = self.img_count/self.video_fps
 
         self.frame['index'] = self.img_count
