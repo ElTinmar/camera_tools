@@ -108,8 +108,11 @@ class XimeaCamera(Camera):
         return self.xi_cam.get_framerate()
 
     def get_framerate_range(self) -> Optional[Tuple[float,float]]:
+        original_timing_mode = self.xi_cam.get_acq_timing_mode()
+        self.xi_cam.set_acq_timing_mode('XI_ACQ_TIMING_MODE_FREE_RUN')
         framerate_min = self.xi_cam.get_framerate_minimum()
         framerate_max = self.xi_cam.get_framerate_maximum()
+        self.xi_cam.set_acq_timing_mode(original_timing_mode)
         return (framerate_min, framerate_max)
 
     def get_framerate_increment(self) -> Optional[float]:
