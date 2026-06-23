@@ -44,7 +44,7 @@ class MovieFileCam(Camera):
             cam_info.append(cam)
         return cam_info
 
-    def __init__(self, filename: str, *args, **kwargs):
+    def __init__(self, filename: str, loop: bool = False, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
@@ -62,6 +62,7 @@ class MovieFileCam(Camera):
         self.fps = self.DEFAULT_FPS
         self.video_fps = None
         self.prev_time = 0
+        self.loop = loop
 
     def start_acquisition(self) -> None:
         self.reader = cv2.VideoCapture(self.filename)
@@ -89,7 +90,12 @@ class MovieFileCam(Camera):
         self.img_count += 1
         rval, img = self.reader.read()
         if not rval: 
-            return
+            if self.loop:
+                self.stop_acquisition()
+                self.start_acquisition()
+                rval, img = self.reader.read()
+            else:
+                return
         
         timestamp = self.img_count/self.video_fps
 
