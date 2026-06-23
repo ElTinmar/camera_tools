@@ -473,6 +473,14 @@ class MovieFileCamGray(MovieFileCam):
         
         self.img_count += 1
         rval, img = self.reader.read()
+        if not rval: 
+            if self.loop:
+                self.stop_acquisition()
+                self.start_acquisition()
+                rval, img = self.reader.read()
+            else:
+                return
+            
         timestamp = self.img_count/self.video_fps
 
         self.frame['index'] = self.img_count
