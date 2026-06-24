@@ -80,7 +80,9 @@ class MovieFileCam(Camera):
         )
 
     def stop_acquisition(self) -> None:
-        self.reader.release()
+        if self.reader is not None:
+            self.reader.release()
+        self.reader = None
 
     def get_frame(self) -> Optional[NDArray]:
 
